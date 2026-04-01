@@ -55,7 +55,13 @@ st.markdown("""
         font-weight: 600 !important;
     }
 
-    /* 🚨 라디오 버튼: 부모 래퍼까지 전폭 + 가운데 정렬 (:has로 부모 체인 강제) */
+    /* 🚨 정렬: stElementContainer(width:fit-content)를 100%로 강제 */
+    div.stElementContainer:has(.stRadio) {
+        width: 100% !important;
+    }
+    /* 🚨 정렬: stRadio 및 radiogroup 부모 체인 전체 가운데 */
+    div.stRadio,
+    div.stRadio > div,
     div:has(> div[role="radiogroup"]) {
         display: flex !important;
         justify-content: center !important;
@@ -73,10 +79,14 @@ st.markdown("""
         font-weight: 600 !important;
     }
 
-    /* 🚨 다크모드 대응: 외부 원만 흰색 배경 강제 (내부 점은 Streamlit 기본 유지) */
-    label[data-baseweb="radio"] > div:first-child {
+    /* 🚨 다크모드 대응: 외부 원 흰색 배경 (specificity 최대화) */
+    div[role="radiogroup"] label[data-baseweb="radio"] > div:first-child {
         background-color: #FFFFFF !important;
         border-color: #3AB54A !important;
+    }
+    /* 내부 점(선택 표시)은 Streamlit 기본 유지하되 다크모드 검정 방어 */
+    div[role="radiogroup"] label[data-baseweb="radio"] > div:first-child > div {
+        background-color: transparent !important;
     }
 
     /* 기본(Default) 버튼 - 연두색 */
