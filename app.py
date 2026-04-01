@@ -55,7 +55,17 @@ st.markdown("""
         font-weight: 600 !important;
     }
 
-    /* 🚨 모바일/다크모드 대응: 1p 라디오 버튼 무조건 가운데 정렬 + 양옆 간격 40px 띄우기 */
+    /* 🚨 라디오 버튼: 부모 래퍼까지 전폭 + 가운데 정렬 강제 */
+    [data-testid="stRadio"] {
+        width: 100% !important;
+        display: flex !important;
+        justify-content: center !important;
+    }
+    [data-testid="stRadio"] > div {
+        width: 100% !important;
+        display: flex !important;
+        justify-content: center !important;
+    }
     div[role="radiogroup"] {
         display: flex !important;
         flex-direction: row !important;
@@ -66,6 +76,45 @@ st.markdown("""
     div[role="radiogroup"] label, div[role="radiogroup"] p {
         color: #2C3E50 !important;
         font-weight: 600 !important;
+    }
+
+    /* 🚨 다크모드 대응: 라디오 버튼 원형 인디케이터 흰색 배경 + 테두리 강제 */
+    div[role="radiogroup"] label > div:first-child,
+    div[role="radiogroup"] label > div:first-child > div {
+        background-color: #FFFFFF !important;
+        border-color: #3AB54A !important;
+    }
+    /* 선택된 라디오 인디케이터 내부 점 색상 */
+    div[role="radiogroup"] label[data-checked="true"] > div:first-child > div,
+    div[role="radiogroup"] label > div:first-child > div::after {
+        background-color: #3AB54A !important;
+    }
+    /* SVG 기반 인디케이터 대응 */
+    div[role="radiogroup"] svg {
+        fill: #FFFFFF !important;
+        stroke: #3AB54A !important;
+    }
+    div[role="radiogroup"] svg circle {
+        fill: #FFFFFF !important;
+        stroke: #3AB54A !important;
+    }
+    /* 선택 상태 SVG 내부 원 */
+    div[role="radiogroup"] label[data-checked="true"] svg circle:last-child,
+    div[role="radiogroup"] label[data-checked="true"] svg circle:nth-child(2) {
+        fill: #3AB54A !important;
+    }
+    /* BaseWeb 라디오 마크 다크모드 방어 */
+    div[role="radiogroup"] div[data-baseweb="radio"] > div:first-child {
+        background-color: #FFFFFF !important;
+        border-color: #3AB54A !important;
+    }
+    div[role="radiogroup"] div[data-baseweb="radio"] > div:first-child > div {
+        background-color: #FFFFFF !important;
+    }
+    /* 체크된 상태의 내부 점 */
+    div[role="radiogroup"] input:checked + div,
+    div[role="radiogroup"] input:checked ~ div > div {
+        border-color: #3AB54A !important;
     }
 
     /* 기본(Default) 버튼 - 연두색 */
@@ -222,7 +271,6 @@ if step == 1:
 <h4 style="color:#3AB54A;font-size:1.05rem;text-align:center;margin:0 0 16px">개인정보 수집 및 이용 동의</h4>""", unsafe_allow_html=True)
 
     if st.session_state.get('agree1') != "예":
-        # 🌟 텍스트 안의 <br> 제거하고 한 문장으로 이어붙여 모바일 줄바꿈 깨짐 현상 해결
         st.markdown("""<div style="background:#FAFCFA;border:1px solid #E0E8E0;border-radius:14px;padding:16px 18px;font-size:0.85rem;line-height:1.7;color:#444;margin-bottom:16px">
 <b style="color:#2C3E50">1. 수집 항목</b><br>
 거주 지역, 상담자 유형, 관심 학부(과), 교과 성적 정보<br><br>
@@ -240,11 +288,9 @@ if step == 1:
 
     st.markdown("<p style='font-weight:700;font-size:0.9rem;color:#2C3E50;margin-top:4px;text-align:center;'>개인정보 수집 및 이용에 동의하십니까?</p>", unsafe_allow_html=True)
     
-    # 🌟 1p 모바일 붕괴 방지: st.columns 꼼수 제거하고 화면 전체를 쓰면서 CSS Flexbox로 제어
     st.radio("동의1", ["예", "아니오"], index=None, horizontal=True, key="agree1", label_visibility="collapsed")
 
     if st.session_state.get('agree1') == "예":
-        # 🌟 텍스트 안의 <br> 제거하여 자연스러운 줄바꿈 유도
         st.markdown("""<div style="background:#FFF8E1;border:1px solid #FFE082;border-radius:14px;padding:16px 18px;font-size:0.88rem;line-height:1.6;color:#D35400;text-align:center;font-weight:600;margin-top:20px;margin-bottom:12px;">
 🚨 본 서비스는 2026학년도 성적 기준으로 제공되고 있습니다. 합격을 보증하지 않으니, 참고용으로만 활용하시기 바랍니다.
 </div>""", unsafe_allow_html=True)
@@ -290,7 +336,6 @@ elif step == 2:
         "제주특별자치도": ["제주시", "서귀포시"],
     }
 
-    # 14개로 정리된 학부(과) 리스트
     departments = [
         "자율전공학부", "미래모빌리티공학부", "에너지화학공학부",
         "신소재·반도체융합학부", "전기전자융합학부", "ICT융합학부",
@@ -338,7 +383,6 @@ elif step == 2:
                 st.rerun()
 
     if st.session_state.show_info_warning:
-        # 🌟 다크모드 대응 커스텀 HTML 경고창 (모든 기기에서 노란 배경, 갈색 글씨 중앙 정렬 보장)
         st.markdown("""<div style="background:#FFF3CD;border:1px solid #FFEEBA;border-radius:12px;padding:12px;color:#856404;text-align:center;font-weight:700;font-size:0.9rem;margin-top:10px;">모든 항목을 입력해 주세요.</div>""", unsafe_allow_html=True)
 
 
@@ -356,20 +400,17 @@ elif step == 3:
 <p style="color:#5A6B6B;font-size:0.82rem;text-align:center;margin-bottom:12px">선택 학부(과): <b style="color:#2C3E50">{deps_str}</b></p>
 </div>""", unsafe_allow_html=True)
 
-    # 세션에 성적 값 미리 세팅 (화면 간섭 방지용 초기화 추가)
     if "s_all" not in st.session_state: st.session_state.s_all = 0.0
     if "s_10" not in st.session_state: st.session_state.s_10 = 0.0
     if "input_all" not in st.session_state: st.session_state.input_all = st.session_state.s_all
     if "input_10" not in st.session_state: st.session_state.input_10 = st.session_state.s_10
 
-    # 동기화 콜백 함수 정의
     def sync_all():
         st.session_state.s_all = st.session_state.input_all
 
     def sync_10():
         st.session_state.s_10 = st.session_state.input_10
 
-    # 1. 안내 연두색 박스 출력
     if only_special:
         st.markdown("""<div style="background:#EFF8EF;border-radius:12px;padding:12px 16px;font-size:0.84rem;color:#2B8A3E;font-weight:600;text-align:center;margin:8px 0 12px;border:1px solid #D4EAD4">
 선택하신 학부(과)는 <b>전 과목 석차등급 평균</b>으로 판정합니다.
@@ -379,10 +420,8 @@ elif step == 3:
 전 과목 평균과 상위 10개 과목 평균이 모두 필요합니다.
 </div>""", unsafe_allow_html=True)
 
-    # 2. 지능형 계산기 파트
     st.markdown("<div style='height:4px'></div>", unsafe_allow_html=True)
     
-    # 🌟 아코디언 제목 줄바꿈 제거하고 직관적인 한 줄 텍스트로 수정
     with st.expander("💡 내 평균 등급을 잘 모르겠다면 계산기 열기 (클릭)"):
         
         if not only_special:
@@ -478,7 +517,6 @@ elif step == 3:
                     st.session_state.input_all = calc_val
                 st.rerun()
 
-    # 3. 실제 성적 입력칸 파트
     st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
     if only_special:
         st.markdown("<p style='font-weight:600;font-size:0.88rem;color:#2C3E50;margin:0 0 4px 14px'>전 과목 평균 등급</p>", unsafe_allow_html=True)
@@ -504,7 +542,6 @@ elif step == 3:
             st.rerun()
             
     with col_r:
-        # 🌟 '합격 탐색' 버튼을 type="primary"로 주어 진한 녹색으로 돋보이게 처리
         if st.button("합격 탐색", type="primary", key="btn3_next", width="stretch"):
             if score_all == 0.0 and score_10 == 0.0:
                 st.session_state.show_score_warning = True
@@ -514,18 +551,11 @@ elif step == 3:
                 st.session_state.user_data['score_all'] = score_all
                 st.session_state.user_data['score_10'] = score_10
 
-                # 🚀 [여기부터 백엔드 데이터 저장 시작]
                 try:
-                    # 구글 시트 연결 (secrets.toml 설정 기반)
                     conn = st.connection("gsheets", type=GSheetsConnection)
-                    
-                    # ⚠️ 선생님의 실제 구글 시트 주소를 아래에 붙여넣기 하세요.
                     sheet_url = "https://docs.google.com/spreadsheets/d/1XMrUsijgyAeAubwA-NCEw4Z8zqcVS8b_TXipWL-0d2w/edit?usp=sharing" 
-
-                    # 🌟 ttl=0을 추가해서 캐시를 무시, 빈 줄 삭제 및 8칸으로 확장
                     existing_data = conn.read(spreadsheet=sheet_url, usecols=list(range(8)), ttl=0).dropna(how="all")
                     
-                    # 새로 추가할 1줄 데이터 포장하기
                     new_entry = pd.DataFrame([{
                         "입력시간": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                         "시도": st.session_state.user_data['region_main'],
@@ -537,7 +567,6 @@ elif step == 3:
                         "유입경로": st.session_state.ad_source
                     }])
                     
-                    # 기존 시트 아랫줄에 새 데이터 붙이고 업데이트
                     updated_df = pd.concat([existing_data, new_entry], ignore_index=True)
                     conn.update(spreadsheet=sheet_url, data=updated_df)
                 
@@ -549,7 +578,6 @@ elif step == 3:
                 st.rerun()
 
     if st.session_state.show_score_warning:
-        # 🌟 다크모드 대응 커스텀 HTML 경고창
         st.markdown("""<div style="background:#FFF3CD;border:1px solid #FFEEBA;border-radius:12px;padding:12px;color:#856404;text-align:center;font-weight:700;font-size:0.9rem;margin-top:10px;">성적을 입력해 주세요.</div>""", unsafe_allow_html=True)
 
 
@@ -568,7 +596,7 @@ elif step == 4:
         
         if score <= avg_f:       return "안정", "#2B8A3E", "#E8F5E9"
         elif score <= cut70_f:   return "적정", "#1976D2", "#E3F2FD"
-        else:                    return "상향", "#E67E22", "#FFF8E1" # 🌟 소신 ➡️ 상향
+        else:                    return "상향", "#E67E22", "#FFF8E1"
 
     def get_hakjong_result(score, avg_score):
         if avg_score == '-':
@@ -577,14 +605,13 @@ elif step == 4:
         avg_f = float(avg_score)
         
         if score <= avg_f: return "적정", "#2B8A3E", "#E8F5E9"
-        else:              return "상향", "#E67E22", "#FFF8E1" # 🌟 소신 ➡️ 상향
+        else:              return "상향", "#E67E22", "#FFF8E1"
 
     def badge(text, color, bg):
         if text == "-":
             return f"<span style='background:{bg};color:{color};padding:3px 14px;border-radius:14px;font-weight:700;font-size:0.85rem'>판정 불가</span>"
         return f"<span style='background:{bg};color:{color};padding:3px 14px;border-radius:14px;font-weight:700;font-size:0.85rem'>{text}</span>"
 
-    # 🌟 <br>을 제거하여 자연스러운 단어 단위 줄바꿈 유지
     st.markdown("""
 <div style="background:#FFF8E1;border:1px solid #FFE082;border-radius:16px;padding:14px 18px;margin-bottom:12px;text-align:center;">
 <span style="font-weight:700;color:#D35400;font-size:0.9rem;">
@@ -624,7 +651,7 @@ elif step == 4:
 </div>
 </div>
 </div>
-</div>""", unsafe_allow_html=True) # 🌟 소신 ➡️ 상향 일괄 교체
+</div>""", unsafe_allow_html=True)
 
     for dep in selected_deps:
         if dep not in db:
@@ -705,7 +732,6 @@ elif step == 4:
             st.session_state.step = 3
             st.rerun()
     with col_c:
-        # 🌟 처음으로 버튼을 '유의사항'으로 교체
         if st.button("유의사항", key="btn4_notice", width="stretch"):
             st.session_state.step = 5
             st.rerun()
@@ -715,7 +741,6 @@ elif step == 4:
 # [화면 5] 🌟 신규: 유의사항 및 종료 페이지
 # ══════════════════════════════════════
 elif step == 5:
-    # 🌟 파서 오작동 방지: HTML 태그 제일 앞부분의 여백(들여쓰기)을 모두 완벽하게 제거
     st.markdown("""<div style="background:#FFFFFF;border-radius:20px;padding:26px 24px;box-shadow:0 4px 16px rgba(0,0,0,0.05);margin-bottom:16px">
 <h4 style="color:#1E7E34;font-size:1.1rem;text-align:center;margin:0 0 20px;">📌 2027학년도 울산대 수시 체크 포인트</h4>
 <div style="background:#F8FBF8;border-left:4px solid #3AB54A;padding:16px;border-radius:8px;margin-bottom:14px;">
@@ -733,7 +758,6 @@ elif step == 5:
 
     _, col_close, _ = st.columns([1, 1.5, 1])
     with col_close:
-        # 🌟 닫기 버튼: 화면 내용 지우고 종료 메세지 띄우기
         if st.button("닫기", type="secondary", key="btn_close", width="stretch"):
             st.session_state.closed = True
             st.rerun()
