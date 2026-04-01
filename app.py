@@ -476,9 +476,9 @@ elif step == 3:
                     conn.update(spreadsheet=sheet_url, data=updated_df)
                 
                 except Exception as e:
-                    # 에러가 발생하더라도 사용자 화면은 정상적으로 다음으로 넘어가게 함
-                    print(f"데이터 저장 실패: {e}")
-                # 🚀 [백엔드 데이터 저장 끝]
+                   # 에러를 숨기지 않고 화면에 빨간색으로 강력하게 띄웁니다!
+                    st.error(f"🚨 데이터 저장 실패 원인: {e}")
+                    st.stop() # 여기서 멈춰서 다음 화면으로 안 넘어가게 함
 
                 st.session_state.step = 4
                 st.rerun()
