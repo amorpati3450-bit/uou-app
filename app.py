@@ -456,6 +456,12 @@ elif step == 3:
                     
                     # ⚠️여기를 수정하세요: 선생님의 실제 구글 시트 주소를 아래에 붙여넣기 하세요.
                     sheet_url = "https://docs.google.com/spreadsheets/d/1XMrUsijgyAeAubwA-NCEw4Z8zqcVS8b_TXipWL-0d2w/edit?usp=sharing" 
+
+                    # 🌟 수정 1: ttl=0을 추가해서 캐시를 무시하고 구글 시트에서 최신 상태를 강제로 읽어옵니다.
+                    existing_data = conn.read(spreadsheet=sheet_url, usecols=list(range(7)), ttl=0)
+                    
+                    # 🌟 수정 2: 구글 시트 특유의 무의미한 빈 줄(NaN)을 깔끔하게 지워줍니다.
+                    existing_data = existing_data.dropna(how="all")
                     
                     # 기존 데이터 7칸 읽어오기
                     existing_data = conn.read(spreadsheet=sheet_url, usecols=list(range(7)))
