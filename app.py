@@ -6,7 +6,7 @@ from streamlit_gsheets import GSheetsConnection
 # 1. 페이지 기본 설정
 st.set_page_config(page_title="2027학년도 UOU 입시나침반", layout="centered")
 
-# 2. CSS (다크모드 텍스트 증발 방지 및 버튼 차별화 추가)
+# 2. CSS (모바일 반응형, 다크모드 방어, 버튼 차별화 완벽 적용)
 st.markdown("""
 <style>
     header[data-testid="stHeader"] { display: none !important; }
@@ -24,7 +24,7 @@ st.markdown("""
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
 
-    /* 알약 형태 입력창 */
+    /* 알약 형태 입력창 배경/테두리 */
     div[data-baseweb="select"] > div,
     div[data-baseweb="input"] > div {
         background-color: #FFFFFF !important;
@@ -39,8 +39,11 @@ st.markdown("""
         box-shadow: 0 0 0 3px rgba(58,181,74,0.12) !important;
     }
 
-    /* 🚨 다크모드 대응: 드롭다운(Selectbox) 글자색 강제 고정 */
-    div[data-baseweb="select"] span { color: #2C3E50 !important; font-weight: 500 !important; }
+    /* 🚨 다크모드 대응: 드롭다운(Selectbox) 선택된 글씨 및 리스트 색상 강제 고정 */
+    div[data-baseweb="select"] * {
+        color: #2C3E50 !important;
+        -webkit-text-fill-color: #2C3E50 !important;
+    }
     ul[data-baseweb="menu"] li { color: #2C3E50 !important; }
     
     /* 🚨 다크모드 대응: 숫자 입력칸(Number Input) 글자색 강제 고정 */
@@ -50,12 +53,15 @@ st.markdown("""
         font-weight: 600 !important;
     }
 
-    /* 🚨 다크모드 대응: 1p 라디오 버튼 가운데 정렬 및 글자색 강제 고정 */
+    /* 🚨 모바일/다크모드 대응: 1p 라디오 버튼 무조건 가운데 정렬 + 양옆 간격 띄우기 */
     div[role="radiogroup"] {
+        display: flex !important;
+        flex-direction: row !important;
         justify-content: center !important;
-        width: 100%;
+        gap: 40px !important;
+        width: 100% !important;
     }
-    div[role="radiogroup"] p, div[role="radiogroup"] label {
+    div[role="radiogroup"] label {
         color: #2C3E50 !important;
         font-weight: 600 !important;
     }
@@ -113,11 +119,16 @@ st.markdown("""
         cursor: not-allowed;
     }
 
-    /* expander 스타일 및 다크모드 텍스트 색상 고정 */
+    /* 아코디언(Expander) 테두리 및 제목 텍스트 속성 (자동 줄바꿈 허용) */
     .stExpander {
         border: 1px solid #E0ECE0 !important;
         border-radius: 16px !important;
         margin-bottom: 8px;
+    }
+    details summary {
+        white-space: normal !important; 
+        height: auto !important; 
+        line-height: 1.4 !important;
     }
     details summary span {
         color: #2C3E50 !important;
@@ -130,7 +141,6 @@ st.markdown("""
         font-size: 0.8rem;
         width: 100% !important;
     }
-    
     [data-testid="stDataFrame"] > div {
         overflow: hidden !important; 
     }
@@ -142,7 +152,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 3. 상태 관리
+# 3. 상태 관리 및 백엔드 파라미터 수집
 if 'step' not in st.session_state:
     st.session_state.step = 1
 if 'user_data' not in st.session_state:
@@ -153,10 +163,10 @@ if 'ad_source' not in st.session_state:
 # 🌟 닫기(종료) 처리 로직
 if st.session_state.get('closed', False):
     st.markdown("""
-    <div style="background:#FFFFFF;border-radius:20px;padding:50px 20px;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,0.05);margin-top:40px;">
-        <h3 style="color:#1E7E34;margin-bottom:12px;">✅ 안전하게 종료되었습니다</h3>
-        <p style="color:#5A6B6B;font-size:0.95rem;font-weight:600;">현재 창이나 탭을 닫아주세요.</p>
-    </div>
+<div style="background:#FFFFFF;border-radius:20px;padding:50px 20px;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,0.05);margin-top:40px;">
+<h3 style="color:#1E7E34;margin-bottom:12px;">✅ 안전하게 종료되었습니다</h3>
+<p style="color:#5A6B6B;font-size:0.95rem;font-weight:600;">현재 창이나 탭을 닫아주세요.</p>
+</div>
     """, unsafe_allow_html=True)
     st.stop()
 
@@ -207,48 +217,38 @@ st.markdown(f"""<div style="background:linear-gradient(135deg,#228B37 0%,#3AB54A
 # ══════════════════════════════════════
 if step == 1:
     st.markdown("""<div style="background:#FFFFFF;border-radius:20px;padding:24px;box-shadow:0 4px 16px rgba(0,0,0,0.05);margin-bottom:16px">
-    <h4 style="color:#3AB54A;font-size:1.05rem;text-align:center;margin:0 0 16px">개인정보 수집 및 이용 동의</h4>""", unsafe_allow_html=True)
+<h4 style="color:#3AB54A;font-size:1.05rem;text-align:center;margin:0 0 16px">개인정보 수집 및 이용 동의</h4>""", unsafe_allow_html=True)
 
     if st.session_state.get('agree1') != "예":
-        st.markdown("""
-        <div style="background:#FAFCFA;border:1px solid #E0E8E0;border-radius:14px;padding:16px 18px;font-size:0.85rem;line-height:1.9;color:#444;margin-bottom:16px">
-        <b style="color:#2C3E50">1. 수집 항목</b><br>
-        거주 지역, 상담자 유형, 관심 학부(과), 교과 성적 정보<br><br>
-        <b style="color:#2C3E50">2. 수집 및 이용 목적</b><br>
-        수시모집 전형별 합격 가능성 예측 서비스 제공 및 입시 상담 통계 분석<br><br>
-        <b style="color:#2C3E50">3. 보유 및 이용 기간</b><br>
-        <span style="color:#3AB54A;font-weight:700">수집일로부터 1년</span> 경과 후 지체 없이 파기<br><br>
-        <b style="color:#2C3E50">4. 동의 거부에 관한 사항</b><br>
-        귀하는 위 개인정보 수집 및 이용에 대해 동의를 거부할 권리가 있습니다.<br>
-        다만, 본 항목은 서비스 제공을 위한 필수 정보로서 동의하지 않으실 경우에는<br>
-        합격 탐색 서비스 이용이 제한됩니다.
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown("""<div style="background:#FAFCFA;border:1px solid #E0E8E0;border-radius:14px;padding:16px 18px;font-size:0.85rem;line-height:1.9;color:#444;margin-bottom:16px">
+<b style="color:#2C3E50">1. 수집 항목</b><br>
+거주 지역, 상담자 유형, 관심 학부(과), 교과 성적 정보<br><br>
+<b style="color:#2C3E50">2. 수집 및 이용 목적</b><br>
+수시모집 전형별 합격 가능성 예측 서비스 제공 및 입시 상담 통계 분석<br><br>
+<b style="color:#2C3E50">3. 보유 및 이용 기간</b><br>
+<span style="color:#3AB54A;font-weight:700">수집일로부터 1년</span> 경과 후 지체 없이 파기<br><br>
+<b style="color:#2C3E50">4. 동의 거부에 관한 사항</b><br>
+귀하는 위 개인정보 수집 및 이용에 대해 동의를 거부할 권리가 있습니다.<br>
+다만, 본 항목은 서비스 제공을 위한 필수 정보로서 동의하지 않으실 경우에는<br>
+합격 탐색 서비스 이용이 제한됩니다.
+</div>""", unsafe_allow_html=True)
     else:
-        st.markdown("""
-        <div style="background:#E8F5E9;border:1px solid #C8E6C9;border-radius:14px;padding:12px 18px;color:#2B8A3E;font-size:0.88rem;font-weight:600;margin-bottom:16px;text-align:center;">
-        ✅ 개인정보 수집 및 이용에 동의하셨습니다.
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown("""<div style="background:#E8F5E9;border:1px solid #C8E6C9;border-radius:14px;padding:12px 18px;color:#2B8A3E;font-size:0.88rem;font-weight:600;margin-bottom:16px;text-align:center;">
+✅ 개인정보 수집 및 이용에 동의하셨습니다.
+</div>""", unsafe_allow_html=True)
 
     st.markdown("<p style='font-weight:700;font-size:0.9rem;color:#2C3E50;margin-top:4px;text-align:center;'>개인정보 수집 및 이용에 동의하십니까?</p>", unsafe_allow_html=True)
     
-    _, col_radio1, _ = st.columns([1.5, 1, 1.5])
-    with col_radio1:
-        st.radio("동의1", ["예", "아니오"], index=None, horizontal=True, key="agree1", label_visibility="collapsed")
+    # 🌟 1p 모바일 붕괴 방지: st.columns 꼼수 제거하고 화면 전체를 쓰면서 CSS Flexbox로 제어
+    st.radio("동의1", ["예", "아니오"], index=None, horizontal=True, key="agree1", label_visibility="collapsed")
 
     if st.session_state.get('agree1') == "예":
-        st.markdown("""
-        <div style="background:#FFF8E1;border:1px solid #FFE082;border-radius:14px;padding:16px 18px;font-size:0.88rem;line-height:1.6;color:#D35400;text-align:center;font-weight:600;margin-top:20px;margin-bottom:12px;">
-        🚨 본 서비스는 2026학년도 성적 기준으로 제공되고 있습니다.<br>합격을 보증하지 않으니, 참고용으로만 활용하시기 바랍니다.
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown("""<div style="background:#FFF8E1;border:1px solid #FFE082;border-radius:14px;padding:16px 18px;font-size:0.88rem;line-height:1.6;color:#D35400;text-align:center;font-weight:600;margin-top:20px;margin-bottom:12px;">
+🚨 본 서비스는 2026학년도 성적 기준으로 제공되고 있습니다.<br>합격을 보증하지 않으니, 참고용으로만 활용하시기 바랍니다.
+</div>""", unsafe_allow_html=True)
         
         st.markdown("<p style='font-weight:700;font-size:0.9rem;color:#2C3E50;margin-top:4px;text-align:center;'>위 유의사항을 확인 및 동의하십니까?</p>", unsafe_allow_html=True)
-        
-        _, col_radio2, _ = st.columns([1.5, 1, 1.5])
-        with col_radio2:
-            st.radio("동의2", ["예", "아니오"], index=None, horizontal=True, key="agree2", label_visibility="collapsed")
+        st.radio("동의2", ["예", "아니오"], index=None, horizontal=True, key="agree2", label_visibility="collapsed")
 
     st.markdown("</div>", unsafe_allow_html=True)
 
@@ -336,10 +336,8 @@ elif step == 2:
                 st.rerun()
 
     if st.session_state.show_info_warning:
-        # 🌟 다크모드 대응 HTML 경고창 (모든 기기에서 흰색 배경+중앙 정렬 유지)
-        st.markdown("""<div style="background:#FFF3CD;border:1px solid #FFEEBA;border-radius:12px;padding:12px;color:#856404;text-align:center;font-weight:700;font-size:0.9rem;margin-top:10px;">
-        모든 항목을 입력해 주세요.
-        </div>""", unsafe_allow_html=True)
+        # 🌟 다크모드 대응 커스텀 HTML 경고창 (모든 기기에서 노란 배경, 갈색 글씨 중앙 정렬 보장)
+        st.markdown("""<div style="background:#FFF3CD;border:1px solid #FFEEBA;border-radius:12px;padding:12px;color:#856404;text-align:center;font-weight:700;font-size:0.9rem;margin-top:10px;">모든 항목을 입력해 주세요.</div>""", unsafe_allow_html=True)
 
 
 # ══════════════════════════════════════
@@ -424,7 +422,6 @@ elif step == 3:
                     if top10:
                         calc_val = sum(top10) / len(top10)
                         st.session_state.s_10 = calc_val
-                        # 💡 핵심 수정: number_input의 key에도 강제로 값을 꽂아줘서 리셋 방지
                         st.session_state.input_10 = calc_val
                     st.rerun()
 
@@ -474,7 +471,6 @@ elif step == 3:
                 if t_unit > 0:
                     calc_val = t_score / t_unit
                     st.session_state.s_all = calc_val
-                    # 💡 핵심 수정: number_input의 key에도 강제로 값을 꽂아줘서 리셋 방지
                     st.session_state.input_all = calc_val
                 st.rerun()
 
@@ -504,7 +500,7 @@ elif step == 3:
             st.rerun()
             
     with col_r:
-        # 🌟 '합격 탐색' 버튼에만 type="primary"를 부여하여 진한 녹색(CSS)으로 돋보이게 처리
+        # 🌟 '합격 탐색' 버튼을 type="primary"로 주어 진한 녹색으로 돋보이게 처리
         if st.button("합격 탐색", type="primary", key="btn3_next", width="stretch"):
             if score_all == 0.0 and score_10 == 0.0:
                 st.session_state.show_score_warning = True
@@ -519,10 +515,10 @@ elif step == 3:
                     # 구글 시트 연결 (secrets.toml 설정 기반)
                     conn = st.connection("gsheets", type=GSheetsConnection)
                     
-                    # ⚠️여기를 수정하세요: 선생님의 실제 구글 시트 주소를 아래에 붙여넣기 하세요.
+                    # ⚠️ 선생님의 실제 구글 시트 주소를 아래에 붙여넣기 하세요.
                     sheet_url = "https://docs.google.com/spreadsheets/d/1XMrUsijgyAeAubwA-NCEw4Z8zqcVS8b_TXipWL-0d2w/edit?usp=sharing" 
 
-                    # 🌟 수정 1, 2: ttl=0을 추가해서 캐시를 무시하고 구글 시트에서 최신 상태를 강제로 읽어옵니다. (빈 줄 삭제 및 8칸으로 확장)
+                    # 🌟 ttl=0을 추가해서 캐시를 무시, 빈 줄 삭제 및 8칸으로 확장
                     existing_data = conn.read(spreadsheet=sheet_url, usecols=list(range(8)), ttl=0).dropna(how="all")
                     
                     # 새로 추가할 1줄 데이터 포장하기
@@ -542,18 +538,15 @@ elif step == 3:
                     conn.update(spreadsheet=sheet_url, data=updated_df)
                 
                 except Exception as e:
-                   # 에러를 숨기지 않고 화면에 빨간색으로 강력하게 띄웁니다!
                     st.error(f"🚨 저장 실패: {e}")
-                    st.stop() # 여기서 멈춰서 다음 화면으로 안 넘어가게 함
+                    st.stop() 
 
                 st.session_state.step = 4
                 st.rerun()
 
     if st.session_state.show_score_warning:
-        # 🌟 다크모드 대응 HTML 경고창 (모든 기기에서 흰색 배경+중앙 정렬 유지)
-        st.markdown("""<div style="background:#FFF3CD;border:1px solid #FFEEBA;border-radius:12px;padding:12px;color:#856404;text-align:center;font-weight:700;font-size:0.9rem;margin-top:10px;">
-        성적을 입력해 주세요.
-        </div>""", unsafe_allow_html=True)
+        # 🌟 다크모드 대응 커스텀 HTML 경고창
+        st.markdown("""<div style="background:#FFF3CD;border:1px solid #FFEEBA;border-radius:12px;padding:12px;color:#856404;text-align:center;font-weight:700;font-size:0.9rem;margin-top:10px;">성적을 입력해 주세요.</div>""", unsafe_allow_html=True)
 
 
 # ══════════════════════════════════════
@@ -588,11 +581,11 @@ elif step == 4:
         return f"<span style='background:{bg};color:{color};padding:3px 14px;border-radius:14px;font-weight:700;font-size:0.85rem'>{text}</span>"
 
     st.markdown("""
-    <div style="background:#FFF8E1;border:1px solid #FFE082;border-radius:16px;padding:14px 18px;margin-bottom:12px;text-align:center;">
-        <span style="font-weight:700;color:#D35400;font-size:0.9rem;">
-            🚨 본 서비스는 2026학년도 성적 기준으로 제공되고 있습니다.<br>합격을 보증하지 않으니, 참고용으로만 활용하시기 바랍니다.
-        </span>
-    </div>
+<div style="background:#FFF8E1;border:1px solid #FFE082;border-radius:16px;padding:14px 18px;margin-bottom:12px;text-align:center;">
+<span style="font-weight:700;color:#D35400;font-size:0.9rem;">
+🚨 본 서비스는 2026학년도 성적 기준으로 제공되고 있습니다.<br>합격을 보증하지 않으니, 참고용으로만 활용하시기 바랍니다.
+</span>
+</div>
     """, unsafe_allow_html=True)
 
     st.markdown("""<div style="background:#FFFFFF;border-radius:16px;padding:16px 18px;box-shadow:0 2px 10px rgba(0,0,0,0.04);margin-bottom:16px">
@@ -626,12 +619,12 @@ elif step == 4:
 </div>
 </div>
 </div>
-</div>""", unsafe_allow_html=True) # 🌟 위쪽의 '소신'도 모두 '상향'으로 교체 완료
+</div>""", unsafe_allow_html=True) # 🌟 소신 ➡️ 상향 일괄 교체
 
     for dep in selected_deps:
         if dep not in db:
             with st.expander(f"{dep} (클릭)"):
-                st.markdown("<p style='color:#2C3E50'>입시결과 데이터 업데이트 준비 중입니다.</p>", unsafe_allow_html=True)
+                st.markdown("<p style='color:#2C3E50; font-weight:600'>입시결과 데이터 업데이트 준비 중입니다.</p>", unsafe_allow_html=True)
             continue
 
         dep_data = db[dep]
@@ -707,7 +700,7 @@ elif step == 4:
             st.session_state.step = 3
             st.rerun()
     with col_c:
-        # 🌟 처음으로 버튼을 '유의사항'으로 교체하고 step=5로 이동
+        # 🌟 처음으로 버튼을 '유의사항'으로 교체
         if st.button("유의사항", key="btn4_notice", width="stretch"):
             st.session_state.step = 5
             st.rerun()
@@ -717,29 +710,25 @@ elif step == 4:
 # [화면 5] 🌟 신규: 유의사항 및 종료 페이지
 # ══════════════════════════════════════
 elif step == 5:
-    st.markdown("""
-    <div style="background:#FFFFFF;border-radius:20px;padding:26px 24px;box-shadow:0 4px 16px rgba(0,0,0,0.05);margin-bottom:16px">
-        <h4 style="color:#1E7E34;font-size:1.1rem;text-align:center;margin:0 0 20px;">📌 2027학년도 울산대 수시 체크 포인트</h4>
-        
-        <div style="background:#F8FBF8;border-left:4px solid #3AB54A;padding:16px;border-radius:8px;margin-bottom:14px;">
-            <div style="font-weight:800;color:#2C3E50;font-size:0.95rem;margin-bottom:6px;">✔️ 지역교과 전형</div>
-            <div style="color:#444;font-size:0.9rem;font-weight:500;">내신 등급으로만! <b style="color:#D35400;">수능 최저 폐지</b></div>
-        </div>
-        
-        <div style="background:#F4F8FD;border-left:4px solid #1976D2;padding:16px;border-radius:8px;margin-bottom:18px;">
-            <div style="font-weight:800;color:#2C3E50;font-size:0.95rem;margin-bottom:6px;">✔️ 잠재역량 전형</div>
-            <div style="color:#444;font-size:0.9rem;font-weight:500;">생기부로만! <b style="color:#D35400;">면접 폐지</b></div>
-        </div>
-        
-        <div style="text-align:center;color:#778CA3;font-size:0.8rem;font-weight:600;padding-top:10px;border-top:1px dashed #E0E8E0;">
-            (단, 두 전형 모두 의예과, 간호학과, 자율전공학부 제외)
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    # 🌟 파서 오작동 방지: HTML 태그 제일 앞부분의 여백(들여쓰기)을 모두 완벽하게 제거
+    st.markdown("""<div style="background:#FFFFFF;border-radius:20px;padding:26px 24px;box-shadow:0 4px 16px rgba(0,0,0,0.05);margin-bottom:16px">
+<h4 style="color:#1E7E34;font-size:1.1rem;text-align:center;margin:0 0 20px;">📌 2027학년도 울산대 수시 체크 포인트</h4>
+<div style="background:#F8FBF8;border-left:4px solid #3AB54A;padding:16px;border-radius:8px;margin-bottom:14px;">
+<div style="font-weight:800;color:#2C3E50;font-size:0.95rem;margin-bottom:6px;">✔️ 지역교과 전형</div>
+<div style="color:#444;font-size:0.9rem;font-weight:500;">내신 등급으로만! <b style="color:#D35400;">수능 최저 폐지</b></div>
+</div>
+<div style="background:#F4F8FD;border-left:4px solid #1976D2;padding:16px;border-radius:8px;margin-bottom:18px;">
+<div style="font-weight:800;color:#2C3E50;font-size:0.95rem;margin-bottom:6px;">✔️ 잠재역량 전형</div>
+<div style="color:#444;font-size:0.9rem;font-weight:500;">생기부로만! <b style="color:#D35400;">면접 폐지</b></div>
+</div>
+<div style="text-align:center;color:#778CA3;font-size:0.8rem;font-weight:600;padding-top:10px;border-top:1px dashed #E0E8E0;">
+(단, 두 전형 모두 의예과, 간호학과, 자율전공학부 제외)
+</div>
+</div>""", unsafe_allow_html=True)
 
     _, col_close, _ = st.columns([1, 1.5, 1])
     with col_close:
-        # 🌟 닫기 버튼을 누르면 모든 화면을 숨기고 종료 메시지를 띄웁니다.
+        # 🌟 닫기 버튼: 화면 내용 지우고 종료 메세지 띄우기
         if st.button("닫기", type="secondary", key="btn_close", width="stretch"):
             st.session_state.closed = True
             st.rerun()
