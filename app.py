@@ -6,7 +6,7 @@ from streamlit_gsheets import GSheetsConnection
 # 1. 페이지 기본 설정
 st.set_page_config(page_title="2027학년도 UOU 입시나침반", layout="centered")
 
-# 2. CSS (모바일 반응형, 다크모드 방어, 버튼 차별화 완벽 적용)
+# 2. CSS (모바일 반응형, 다크모드 방어, 버튼 차별화, 단어 단위 줄바꿈 완벽 적용)
 st.markdown("""
 <style>
     header[data-testid="stHeader"] { display: none !important; }
@@ -19,9 +19,11 @@ st.markdown("""
     }
     div[data-testid="stAppViewBlockContainer"] { padding-top: 0 !important; }
 
+    /* 🌟 한국어 단어 단위 줄바꿈(keep-all) 적용으로 모바일 텍스트 깨짐 방지 */
     .stApp {
         background-color: #F0F4F0;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        word-break: keep-all !important;
     }
 
     /* 알약 형태 입력창 배경/테두리 */
@@ -53,7 +55,7 @@ st.markdown("""
         font-weight: 600 !important;
     }
 
-    /* 🚨 모바일/다크모드 대응: 1p 라디오 버튼 무조건 가운데 정렬 + 양옆 간격 띄우기 */
+    /* 🚨 모바일/다크모드 대응: 1p 라디오 버튼 무조건 가운데 정렬 + 양옆 간격 40px 띄우기 */
     div[role="radiogroup"] {
         display: flex !important;
         flex-direction: row !important;
@@ -61,7 +63,7 @@ st.markdown("""
         gap: 40px !important;
         width: 100% !important;
     }
-    div[role="radiogroup"] label {
+    div[role="radiogroup"] label, div[role="radiogroup"] p {
         color: #2C3E50 !important;
         font-weight: 600 !important;
     }
@@ -220,7 +222,8 @@ if step == 1:
 <h4 style="color:#3AB54A;font-size:1.05rem;text-align:center;margin:0 0 16px">개인정보 수집 및 이용 동의</h4>""", unsafe_allow_html=True)
 
     if st.session_state.get('agree1') != "예":
-        st.markdown("""<div style="background:#FAFCFA;border:1px solid #E0E8E0;border-radius:14px;padding:16px 18px;font-size:0.85rem;line-height:1.9;color:#444;margin-bottom:16px">
+        # 🌟 텍스트 안의 <br> 제거하고 한 문장으로 이어붙여 모바일 줄바꿈 깨짐 현상 해결
+        st.markdown("""<div style="background:#FAFCFA;border:1px solid #E0E8E0;border-radius:14px;padding:16px 18px;font-size:0.85rem;line-height:1.7;color:#444;margin-bottom:16px">
 <b style="color:#2C3E50">1. 수집 항목</b><br>
 거주 지역, 상담자 유형, 관심 학부(과), 교과 성적 정보<br><br>
 <b style="color:#2C3E50">2. 수집 및 이용 목적</b><br>
@@ -228,9 +231,7 @@ if step == 1:
 <b style="color:#2C3E50">3. 보유 및 이용 기간</b><br>
 <span style="color:#3AB54A;font-weight:700">수집일로부터 1년</span> 경과 후 지체 없이 파기<br><br>
 <b style="color:#2C3E50">4. 동의 거부에 관한 사항</b><br>
-귀하는 위 개인정보 수집 및 이용에 대해 동의를 거부할 권리가 있습니다.<br>
-다만, 본 항목은 서비스 제공을 위한 필수 정보로서 동의하지 않으실 경우에는<br>
-합격 탐색 서비스 이용이 제한됩니다.
+귀하는 위 개인정보 수집 및 이용에 대해 동의를 거부할 권리가 있습니다. 다만, 본 항목은 서비스 제공을 위한 필수 정보로서 동의하지 않으실 경우에는 합격 탐색 서비스 이용이 제한됩니다.
 </div>""", unsafe_allow_html=True)
     else:
         st.markdown("""<div style="background:#E8F5E9;border:1px solid #C8E6C9;border-radius:14px;padding:12px 18px;color:#2B8A3E;font-size:0.88rem;font-weight:600;margin-bottom:16px;text-align:center;">
@@ -243,8 +244,9 @@ if step == 1:
     st.radio("동의1", ["예", "아니오"], index=None, horizontal=True, key="agree1", label_visibility="collapsed")
 
     if st.session_state.get('agree1') == "예":
+        # 🌟 텍스트 안의 <br> 제거하여 자연스러운 줄바꿈 유도
         st.markdown("""<div style="background:#FFF8E1;border:1px solid #FFE082;border-radius:14px;padding:16px 18px;font-size:0.88rem;line-height:1.6;color:#D35400;text-align:center;font-weight:600;margin-top:20px;margin-bottom:12px;">
-🚨 본 서비스는 2026학년도 성적 기준으로 제공되고 있습니다.<br>합격을 보증하지 않으니, 참고용으로만 활용하시기 바랍니다.
+🚨 본 서비스는 2026학년도 성적 기준으로 제공되고 있습니다. 합격을 보증하지 않으니, 참고용으로만 활용하시기 바랍니다.
 </div>""", unsafe_allow_html=True)
         
         st.markdown("<p style='font-weight:700;font-size:0.9rem;color:#2C3E50;margin-top:4px;text-align:center;'>위 유의사항을 확인 및 동의하십니까?</p>", unsafe_allow_html=True)
@@ -379,7 +381,9 @@ elif step == 3:
 
     # 2. 지능형 계산기 파트
     st.markdown("<div style='height:4px'></div>", unsafe_allow_html=True)
-    with st.expander("💡 내 평균 등급을 잘 모르겠다면? [여기를 클릭하여 계산기 열기]"):
+    
+    # 🌟 아코디언 제목 줄바꿈 제거하고 직관적인 한 줄 텍스트로 수정
+    with st.expander("💡 내 평균 등급을 잘 모르겠다면 계산기 열기 (클릭)"):
         
         if not only_special:
             st.markdown("<div style='font-weight:800;color:#2C3E50;margin-bottom:4px;font-size:1rem;text-align:center;'>[ 상위 10개 과목 평균 계산기 ]</div>", unsafe_allow_html=True)
@@ -580,10 +584,11 @@ elif step == 4:
             return f"<span style='background:{bg};color:{color};padding:3px 14px;border-radius:14px;font-weight:700;font-size:0.85rem'>판정 불가</span>"
         return f"<span style='background:{bg};color:{color};padding:3px 14px;border-radius:14px;font-weight:700;font-size:0.85rem'>{text}</span>"
 
+    # 🌟 <br>을 제거하여 자연스러운 단어 단위 줄바꿈 유지
     st.markdown("""
 <div style="background:#FFF8E1;border:1px solid #FFE082;border-radius:16px;padding:14px 18px;margin-bottom:12px;text-align:center;">
 <span style="font-weight:700;color:#D35400;font-size:0.9rem;">
-🚨 본 서비스는 2026학년도 성적 기준으로 제공되고 있습니다.<br>합격을 보증하지 않으니, 참고용으로만 활용하시기 바랍니다.
+🚨 본 서비스는 2026학년도 성적 기준으로 제공되고 있습니다. 합격을 보증하지 않으니, 참고용으로만 활용하시기 바랍니다.
 </span>
 </div>
     """, unsafe_allow_html=True)
