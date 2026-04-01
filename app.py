@@ -55,65 +55,27 @@ st.markdown("""
         font-weight: 600 !important;
     }
 
-    /* 🚨 라디오 버튼: 부모 래퍼까지 전폭 + 가운데 정렬 강제 */
-    [data-testid="stRadio"] {
-        width: 100% !important;
+    /* 🚨 라디오 버튼: 부모 래퍼까지 전폭 + 가운데 정렬 (:has로 부모 체인 강제) */
+    div:has(> div[role="radiogroup"]) {
         display: flex !important;
         justify-content: center !important;
-    }
-    [data-testid="stRadio"] > div {
         width: 100% !important;
-        display: flex !important;
-        justify-content: center !important;
     }
     div[role="radiogroup"] {
         display: flex !important;
         flex-direction: row !important;
         justify-content: center !important;
         gap: 40px !important;
-        width: 100% !important;
+        width: auto !important;
     }
-    div[role="radiogroup"] label, div[role="radiogroup"] p {
+    div[role="radiogroup"] label[data-baseweb="radio"] p {
         color: #2C3E50 !important;
         font-weight: 600 !important;
     }
 
-    /* 🚨 다크모드 대응: 라디오 버튼 원형 인디케이터 흰색 배경 + 테두리 강제 */
-    div[role="radiogroup"] label > div:first-child,
-    div[role="radiogroup"] label > div:first-child > div {
+    /* 🚨 다크모드 대응: 외부 원만 흰색 배경 강제 (내부 점은 Streamlit 기본 유지) */
+    label[data-baseweb="radio"] > div:first-child {
         background-color: #FFFFFF !important;
-        border-color: #3AB54A !important;
-    }
-    /* 선택된 라디오 인디케이터 내부 점 색상 */
-    div[role="radiogroup"] label[data-checked="true"] > div:first-child > div,
-    div[role="radiogroup"] label > div:first-child > div::after {
-        background-color: #3AB54A !important;
-    }
-    /* SVG 기반 인디케이터 대응 */
-    div[role="radiogroup"] svg {
-        fill: #FFFFFF !important;
-        stroke: #3AB54A !important;
-    }
-    div[role="radiogroup"] svg circle {
-        fill: #FFFFFF !important;
-        stroke: #3AB54A !important;
-    }
-    /* 선택 상태 SVG 내부 원 */
-    div[role="radiogroup"] label[data-checked="true"] svg circle:last-child,
-    div[role="radiogroup"] label[data-checked="true"] svg circle:nth-child(2) {
-        fill: #3AB54A !important;
-    }
-    /* BaseWeb 라디오 마크 다크모드 방어 */
-    div[role="radiogroup"] div[data-baseweb="radio"] > div:first-child {
-        background-color: #FFFFFF !important;
-        border-color: #3AB54A !important;
-    }
-    div[role="radiogroup"] div[data-baseweb="radio"] > div:first-child > div {
-        background-color: #FFFFFF !important;
-    }
-    /* 체크된 상태의 내부 점 */
-    div[role="radiogroup"] input:checked + div,
-    div[role="radiogroup"] input:checked ~ div > div {
         border-color: #3AB54A !important;
     }
 
