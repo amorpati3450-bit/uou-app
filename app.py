@@ -84,9 +84,13 @@ st.markdown("""
         background-color: #FFFFFF !important;
         border-color: #3AB54A !important;
     }
-    /* 내부 점(선택 표시)은 Streamlit 기본 유지하되 다크모드 검정 방어 */
-    div[role="radiogroup"] label[data-baseweb="radio"] > div:first-child > div {
+    /* 미선택: 내부 점 투명 */
+    div[role="radiogroup"] label[data-baseweb="radio"]:not(:has(input:checked)) > div:first-child > div {
         background-color: transparent !important;
+    }
+    /* 선택: 내부 점 진한 녹색 */
+    div[role="radiogroup"] label[data-baseweb="radio"]:has(input:checked) > div:first-child > div {
+        background-color: #1E7E34 !important;
     }
 
     /* 기본(Default) 버튼 - 연두색 */
