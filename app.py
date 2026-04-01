@@ -113,6 +113,8 @@ if 'step' not in st.session_state:
     st.session_state.step = 1
 if 'user_data' not in st.session_state:
     st.session_state.user_data = {}
+if 'ad_source' not in st.session_state:
+    st.session_state.ad_source = st.query_params.get("ad", "자연유입")
 
 # 데이터베이스 (최신 14개 학부 및 신규 데이터 반영)
 db = {
@@ -207,7 +209,7 @@ if step == 1:
     st.markdown("</div>", unsafe_allow_html=True)
 
     disabled = not (st.session_state.get('agree1') == "예" and st.session_state.get('agree2') == "예")
-    if st.button("다음 단계", disabled=disabled, key="btn_step1", use_container_width=True):
+    if st.button("다음 단계", disabled=disabled, key="btn_step1", width="stretch"):
         st.session_state.step = 2
         st.rerun()
 
@@ -270,13 +272,13 @@ elif step == 2:
 
     col_l, col_empty, col_r = st.columns([1, 1, 1])
     with col_l:
-        if st.button("이전 단계", type="secondary", key="btn2_prev", use_container_width=True):
+        if st.button("이전 단계", type="secondary", key="btn2_prev", width="stretch"):
             st.session_state.show_info_warning = False
             st.session_state.step = 1
             st.rerun()
             
     with col_r:
-        if st.button("다음 단계", key="btn2_next", use_container_width=True):
+        if st.button("다음 단계", key="btn2_next", width="stretch"):
             if region_main != "선택" and region_sub != "선택" and user_type != "선택" and len(selected_deps) > 0:
                 st.session_state.show_info_warning = False
                 st.session_state.user_data = {
@@ -311,6 +313,13 @@ elif step == 3:
     if "s_all" not in st.session_state: st.session_state.s_all = 0.0
     if "s_10" not in st.session_state: st.session_state.s_10 = 0.0
 
+    # 동기화 콜백 함수 정의
+    def sync_all():
+        st.session_state.s_all = st.session_state.input_all
+
+    def sync_10():
+        st.session_state.s_10 = st.session_state.input_10
+
     # 1. 안내 연두색 박스 출력
     if only_special:
         st.markdown("""<div style="background:#EFF8EF;border-radius:12px;padding:12px 16px;font-size:0.84rem;color:#2B8A3E;font-weight:600;text-align:center;margin:8px 0 12px;border:1px solid #D4EAD4">
@@ -334,25 +343,25 @@ elif step == 3:
             c1, c2 = st.columns(2, gap="small")
             with c1: 
                 st.markdown("<div style='text-align:center;font-size:0.85rem;font-weight:700'>국어</div>", unsafe_allow_html=True)
-                ed_t_kor = st.data_editor(def_10, hide_index=True, key="tkor", use_container_width=True)
+                ed_t_kor = st.data_editor(def_10, hide_index=True, key="tkor", width="stretch")
             with c2: 
                 st.markdown("<div style='text-align:center;font-size:0.85rem;font-weight:700'>영어</div>", unsafe_allow_html=True)
-                ed_t_eng = st.data_editor(def_10, hide_index=True, key="teng", use_container_width=True)
+                ed_t_eng = st.data_editor(def_10, hide_index=True, key="teng", width="stretch")
             
             st.markdown("<div style='height:6px'></div>", unsafe_allow_html=True)
             
             c3, c4 = st.columns(2, gap="small")
             with c3: 
                 st.markdown("<div style='text-align:center;font-size:0.85rem;font-weight:700'>수학</div>", unsafe_allow_html=True)
-                ed_t_mat = st.data_editor(def_10, hide_index=True, key="tmat", use_container_width=True)
+                ed_t_mat = st.data_editor(def_10, hide_index=True, key="tmat", width="stretch")
             with c4: 
                 st.markdown("<div style='text-align:center;font-size:0.85rem;font-weight:700'>사회 및 과학</div>", unsafe_allow_html=True)
-                ed_t_ss = st.data_editor(def_10, hide_index=True, key="tss", use_container_width=True)
+                ed_t_ss = st.data_editor(def_10, hide_index=True, key="tss", width="stretch")
 
             st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
             _, btn_col1, _ = st.columns([1, 1.5, 1])
             with btn_col1:
-                if st.button("계산 및 적용", key="btn_apply_10", use_container_width=True):
+                if st.button("계산 및 적용", key="btn_apply_10", width="stretch"):
                     all_vals = []
                     for ed in [ed_t_kor, ed_t_eng, ed_t_mat, ed_t_ss]:
                         for v in ed["등급"]:
@@ -377,28 +386,28 @@ elif step == 3:
         c1, c2, c3 = st.columns(3, gap="small")
         with c1: 
             st.markdown("<div style='text-align:center;font-size:0.85rem;font-weight:700'>국어</div>", unsafe_allow_html=True)
-            ed_a_kor = st.data_editor(def_all, hide_index=True, key="akor", use_container_width=True)
+            ed_a_kor = st.data_editor(def_all, hide_index=True, key="akor", width="stretch")
         with c2: 
             st.markdown("<div style='text-align:center;font-size:0.85rem;font-weight:700'>영어</div>", unsafe_allow_html=True)
-            ed_a_eng = st.data_editor(def_all, hide_index=True, key="aeng", use_container_width=True)
+            ed_a_eng = st.data_editor(def_all, hide_index=True, key="aeng", width="stretch")
         with c3: 
             st.markdown("<div style='text-align:center;font-size:0.85rem;font-weight:700'>수학</div>", unsafe_allow_html=True)
-            ed_a_mat = st.data_editor(def_all, hide_index=True, key="amat", use_container_width=True)
+            ed_a_mat = st.data_editor(def_all, hide_index=True, key="amat", width="stretch")
             
         st.markdown("<div style='height:6px'></div>", unsafe_allow_html=True)
         
         c4, c5 = st.columns(2, gap="small")
         with c4: 
             st.markdown("<div style='text-align:center;font-size:0.85rem;font-weight:700'>사회</div>", unsafe_allow_html=True)
-            ed_a_soc = st.data_editor(def_all, hide_index=True, key="asoc", use_container_width=True)
+            ed_a_soc = st.data_editor(def_all, hide_index=True, key="asoc", width="stretch")
         with c5: 
             st.markdown("<div style='text-align:center;font-size:0.85rem;font-weight:700'>과학</div>", unsafe_allow_html=True)
-            ed_a_sci = st.data_editor(def_all, hide_index=True, key="asci", use_container_width=True)
+            ed_a_sci = st.data_editor(def_all, hide_index=True, key="asci", width="stretch")
 
         st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
         _, btn_col2, _ = st.columns([1, 1.5, 1])
         with btn_col2:
-            if st.button("계산 및 적용", key="btn_apply_all", use_container_width=True):
+            if st.button("계산 및 적용", key="btn_apply_all", width="stretch"):
                 t_unit = 0.0
                 t_score = 0.0
                 for ed in [ed_a_kor, ed_a_eng, ed_a_mat, ed_a_soc, ed_a_sci]:
@@ -418,14 +427,14 @@ elif step == 3:
     st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
     if only_special:
         st.markdown("<p style='font-weight:600;font-size:0.88rem;color:#2C3E50;margin:0 0 4px 14px'>전 과목 평균 등급</p>", unsafe_allow_html=True)
-        score_all = st.number_input("전과목", min_value=0.0, max_value=9.0, step=0.01, format="%.2f", label_visibility="collapsed", key="s_all", help="예: 2.50")
+        score_all = st.number_input("전과목", min_value=0.0, max_value=9.0, step=0.01, format="%.2f", label_visibility="collapsed", key="input_all", value=st.session_state.s_all, on_change=sync_all, help="예: 2.50")
         score_10 = 0.0
     else:
         st.markdown("<p style='font-weight:600;font-size:0.88rem;color:#2C3E50;margin:0 0 4px 14px'>전 과목 평균 등급</p>", unsafe_allow_html=True)
-        score_all = st.number_input("전과목", min_value=0.0, max_value=9.0, step=0.01, format="%.2f", label_visibility="collapsed", key="s_all", help="예: 2.50")
+        score_all = st.number_input("전과목", min_value=0.0, max_value=9.0, step=0.01, format="%.2f", label_visibility="collapsed", key="input_all", value=st.session_state.s_all, on_change=sync_all, help="예: 2.50")
 
         st.markdown("<p style='font-weight:600;font-size:0.88rem;color:#2C3E50;margin:16px 0 4px 14px'>상위 10개 과목 평균 등급</p>", unsafe_allow_html=True)
-        score_10 = st.number_input("상위10", min_value=0.0, max_value=9.0, step=0.01, format="%.2f", label_visibility="collapsed", key="s_10", help="예: 2.00")
+        score_10 = st.number_input("상위10", min_value=0.0, max_value=9.0, step=0.01, format="%.2f", label_visibility="collapsed", key="input_10", value=st.session_state.s_10, on_change=sync_10, help="예: 2.00")
 
     st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
 
@@ -434,13 +443,13 @@ elif step == 3:
 
     col_l, col_empty, col_r = st.columns([1, 1, 1])
     with col_l:
-        if st.button("이전 단계", type="secondary", key="btn3_prev", use_container_width=True):
+        if st.button("이전 단계", type="secondary", key="btn3_prev", width="stretch"):
             st.session_state.show_score_warning = False
             st.session_state.step = 2
             st.rerun()
             
     with col_r:
-        if st.button("합격 탐색", key="btn3_next", use_container_width=True):
+        if st.button("합격 탐색", key="btn3_next", width="stretch"):
             if score_all == 0.0 and score_10 == 0.0:
                 st.session_state.show_score_warning = True
                 st.rerun()
@@ -457,14 +466,8 @@ elif step == 3:
                     # ⚠️여기를 수정하세요: 선생님의 실제 구글 시트 주소를 아래에 붙여넣기 하세요.
                     sheet_url = "https://docs.google.com/spreadsheets/d/1XMrUsijgyAeAubwA-NCEw4Z8zqcVS8b_TXipWL-0d2w/edit?usp=sharing" 
 
-                    # 🌟 수정 1: ttl=0을 추가해서 캐시를 무시하고 구글 시트에서 최신 상태를 강제로 읽어옵니다.
-                    existing_data = conn.read(spreadsheet=sheet_url, usecols=list(range(7)), ttl=0)
-                    
-                    # 🌟 수정 2: 구글 시트 특유의 무의미한 빈 줄(NaN)을 깔끔하게 지워줍니다.
-                    existing_data = existing_data.dropna(how="all")
-                    
-                    # 기존 데이터 7칸 읽어오기
-                    existing_data = conn.read(spreadsheet=sheet_url, usecols=list(range(7)))
+                    # 🌟 수정 1, 2: ttl=0을 추가해서 캐시를 무시하고 구글 시트에서 최신 상태를 강제로 읽어옵니다. (빈 줄 삭제 및 8칸으로 확장)
+                    existing_data = conn.read(spreadsheet=sheet_url, usecols=list(range(8)), ttl=0).dropna(how="all")
                     
                     # 새로 추가할 1줄 데이터 포장하기
                     new_entry = pd.DataFrame([{
@@ -474,7 +477,8 @@ elif step == 3:
                         "상담자": st.session_state.user_data['type'],
                         "관심학부": ", ".join(st.session_state.user_data['deps']),
                         "전과목성적": score_all,
-                        "10과목성적": score_10
+                        "10과목성적": score_10,
+                        "유입경로": st.session_state.ad_source
                     }])
                     
                     # 기존 시트 아랫줄에 새 데이터 붙이고 업데이트
@@ -483,7 +487,7 @@ elif step == 3:
                 
                 except Exception as e:
                    # 에러를 숨기지 않고 화면에 빨간색으로 강력하게 띄웁니다!
-                    st.error(f"🚨 데이터 저장 실패 원인: {e}")
+                    st.error(f"🚨 저장 실패: {e}")
                     st.stop() # 여기서 멈춰서 다음 화면으로 안 넘어가게 함
 
                 st.session_state.step = 4
@@ -636,15 +640,15 @@ elif step == 4:
     st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
     col_a, col_b, col_c = st.columns(3)
     with col_a:
-        if st.button("학부 변경", type="secondary", key="btn4_dep", use_container_width=True):
+        if st.button("학부 변경", type="secondary", key="btn4_dep", width="stretch"):
             st.session_state.step = 2
             st.rerun()
     with col_b:
-        if st.button("성적 수정", type="secondary", key="btn4_score", use_container_width=True):
+        if st.button("성적 수정", type="secondary", key="btn4_score", width="stretch"):
             st.session_state.step = 3
             st.rerun()
     with col_c:
-        if st.button("처음으로", type="secondary", key="btn4_reset", use_container_width=True):
+        if st.button("처음으로", type="secondary", key="btn4_reset", width="stretch"):
             st.session_state.step = 1
             st.session_state.user_data = {}
             st.rerun()
