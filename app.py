@@ -309,9 +309,11 @@ elif step == 3:
 <p style="color:#5A6B6B;font-size:0.82rem;text-align:center;margin-bottom:12px">선택 학부(과): <b style="color:#2C3E50">{deps_str}</b></p>
 </div>""", unsafe_allow_html=True)
 
-    # 세션에 성적 값 미리 세팅
+    # 세션에 성적 값 미리 세팅 (화면 간섭 방지용 초기화 추가)
     if "s_all" not in st.session_state: st.session_state.s_all = 0.0
     if "s_10" not in st.session_state: st.session_state.s_10 = 0.0
+    if "input_all" not in st.session_state: st.session_state.input_all = st.session_state.s_all
+    if "input_10" not in st.session_state: st.session_state.input_10 = st.session_state.s_10
 
     # 동기화 콜백 함수 정의
     def sync_all():
@@ -373,7 +375,10 @@ elif step == 3:
                     all_vals.sort()
                     top10 = all_vals[:10]
                     if top10:
-                        st.session_state.s_10 = sum(top10) / len(top10)
+                        calc_val = sum(top10) / len(top10)
+                        st.session_state.s_10 = calc_val
+                        # 💡 핵심 수정: number_input의 key에도 강제로 값을 꽂아줘서 리셋 방지
+                        st.session_state.input_10 = calc_val
                     st.rerun()
 
             st.markdown("<div style='height:16px; border-bottom:1px solid #E0ECE0; margin-bottom:16px'></div>", unsafe_allow_html=True)
@@ -420,7 +425,10 @@ elif step == 3:
                                     t_score += (uf * gf)
                             except: pass
                 if t_unit > 0:
-                    st.session_state.s_all = t_score / t_unit
+                    calc_val = t_score / t_unit
+                    st.session_state.s_all = calc_val
+                    # 💡 핵심 수정: number_input의 key에도 강제로 값을 꽂아줘서 리셋 방지
+                    st.session_state.input_all = calc_val
                 st.rerun()
 
     # 3. 실제 성적 입력칸 파트
