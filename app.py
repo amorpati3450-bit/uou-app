@@ -345,7 +345,7 @@ elif step == 2:
             st.rerun()
             
     with col_r:
-        if st.button("다음 단계", key="btn2_next", width="stretch"):
+        if st.button("다음 단계", type="primary", key="btn2_next", width="stretch"):
             if region_main != "선택" and region_sub != "선택" and user_type != "선택" and len(selected_deps) > 0:
                 st.session_state.show_info_warning = False
                 st.session_state.user_data = {
@@ -708,7 +708,7 @@ elif step == 4:
             st.session_state.step = 3
             st.rerun()
     with col_c:
-        if st.button("유의사항", key="btn4_notice", width="stretch"):
+        if st.button("유의사항", type="primary", key="btn4_notice", width="stretch"):
             st.session_state.step = 5
             st.rerun()
 
