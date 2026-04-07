@@ -268,7 +268,7 @@ if step == 1:
 
     if st.session_state.get('agree1') == "예":
         st.markdown("""<div style="background:#FFF8E1;border:1px solid #FFE082;border-radius:14px;padding:16px 18px;font-size:0.88rem;line-height:1.6;color:#D35400;text-align:center;font-weight:600;margin-top:20px;margin-bottom:12px;">
-🚨 본 서비스는 2026학년도 성적 기준으로 제공되고 있습니다. 합격을 보증하지 않으니, 참고용으로만 활용하시기 바랍니다.
+🚨 본 결과는 2026학년도 기준 참고용이며, 실제 합격을 보증하지 않습니다.
 </div>""", unsafe_allow_html=True)
         
         st.markdown("<p style='font-weight:700;font-size:0.9rem;color:#2C3E50;margin-top:4px;text-align:center;'>위 유의사항을 확인 및 동의하십니까?</p>", unsafe_allow_html=True)
@@ -591,7 +591,7 @@ elif step == 4:
     st.markdown("""
 <div style="background:#FFF8E1;border:1px solid #FFE082;border-radius:16px;padding:14px 18px;margin-bottom:12px;text-align:center;">
 <span style="font-weight:700;color:#D35400;font-size:0.9rem;">
-🚨 본 서비스는 2026학년도 성적 기준으로 제공되고 있습니다. 합격을 보증하지 않으니, 참고용으로만 활용하시기 바랍니다.
+🚨 본 결과는 2026학년도 기준 참고용이며, 실제 합격을 보증하지 않습니다.
 </span>
 </div>
     """, unsafe_allow_html=True)
