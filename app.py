@@ -499,11 +499,11 @@ elif step == 3:
         score_all = st.number_input("전과목", min_value=0.0, max_value=9.0, step=0.01, format="%.2f", label_visibility="collapsed", key="input_all", value=st.session_state.s_all, on_change=sync_all, help="예: 2.50")
         score_10 = 0.0
     else:
-        st.markdown("<p style='font-weight:600;font-size:0.88rem;color:#2C3E50;margin:0 0 4px 14px'>상위 10개 과목 평균 등급</p>", unsafe_allow_html=True)
-        score_10 = st.number_input("상위10", min_value=0.0, max_value=9.0, step=0.01, format="%.2f", label_visibility="collapsed", key="input_10", value=st.session_state.s_10, on_change=sync_10, help="예: 2.00")
+        st.markdown("<p style='font-weight:600;font-size:0.88rem;color:#2C3E50;margin:0 0 4px 14px'>상위 10개 과목 평균 등급</p>", unsafe_allow_html=True)
+        score_10 = st.number_input("상위10", min_value=0.0, max_value=9.0, step=0.01, format="%.2f", label_visibility="collapsed", key="input_10", value=st.session_state.s_10, on_change=sync_10, help="예: 2.00")
 
-        st.markdown("<p style='font-weight:600;font-size:0.88rem;color:#2C3E50;margin:16px 0 4px 14px'>전 과목 평균 등급</p>", unsafe_allow_html=True)
-        score_all = st.number_input("전과목", min_value=0.0, max_value=9.0, step=0.01, format="%.2f", label_visibility="collapsed", key="input_all", value=st.session_state.s_all, on_change=sync_all, help="예: 2.50")
+        st.markdown("<p style='font-weight:600;font-size:0.88rem;color:#2C3E50;margin:16px 0 4px 14px'>전 과목 평균 등급</p>", unsafe_allow_html=True)
+        score_all = st.number_input("전과목", min_value=0.0, max_value=9.0, step=0.01, format="%.2f", label_visibility="collapsed", key="input_all", value=st.session_state.s_all, on_change=sync_all, help="예: 2.50")
 
     st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
 
