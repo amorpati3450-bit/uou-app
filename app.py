@@ -580,7 +580,7 @@ elif step == 4:
             
         avg_f = float(avg_score)
         
-        if score <= avg_f: return "적정", "#2B8A3E", "#E8F5E9"
+        if score <= avg_f: return "적정", "#1976D2", "#E3F2FD"
         else:              return "상향", "#E67E22", "#FFF8E1"
 
     def badge(text, color, bg):
@@ -616,9 +616,9 @@ elif step == 4:
 </div>
 </div>
 <div style="flex:1;background:#F8FBF8;border-radius:10px;padding:12px 14px;border-left:3px solid #2196F3">
-<div style="font-weight:700;color:#1976D2;margin-bottom:10px;font-size:0.88rem">학종형</div>
+<div style="font-weight:700;color:#1976D2;margin-bottom:10px;font-size:0.88rem">종합형</div>
 <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px">
-<span style="background:#E8F5E9;color:#2B8A3E;padding:2px 10px;border-radius:10px;font-weight:700;font-size:0.78rem;white-space:nowrap">적정</span>
+<span style="background:#E3F2FD;color:#1976D2;padding:2px 10px;border-radius:10px;font-weight:700;font-size:0.78rem;white-space:nowrap">적정</span>
 <span style="color:#444;font-size:0.8rem">평균 등급 이내</span>
 </div>
 <div style="display:flex;align-items:center;gap:8px">
@@ -678,7 +678,7 @@ elif step == 4:
 </div>
 <div style="background:#F4F8FD;border:1px solid #E0E8F0;border-radius:14px;padding:16px;box-shadow:0 2px 6px rgba(0,0,0,0.02)">
 <div style="display:flex;align-items:center;margin-bottom:14px;border-bottom:1px solid #D5E2F0;padding-bottom:10px;">
-<span style="font-weight:800;color:#1976D2;font-size:0.95rem;">학종형</span>
+<span style="font-weight:800;color:#1976D2;font-size:0.95rem;">종형</span>
 <span style="color:#5A6B6B;font-size:0.8rem;margin-left:8px;">(내 성적: <b style="color:#2C3E50;">{hakjong_score:.2f}</b> 등급 / {hakjong_label})</span>
 </div>
 <div style="display:flex;gap:10px">
