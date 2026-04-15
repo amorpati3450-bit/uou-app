@@ -64,6 +64,17 @@ st.markdown("""
         font-weight: 600 !important;
     }
 
+    /* 🌟 신규: 로딩 스피너(Spinner) 텍스트 가독성 강제 고정 */
+    [data-testid="stSpinner"] * {
+        color: #1E7E34 !important;
+        font-weight: 700 !important;
+    }
+    
+    /* 🌟 신규: 상단 "Running..." 상태 표시기(Status Widget) 강제 숨김 */
+    [data-testid="stStatusWidget"] {
+        display: none !important;
+    }
+
     /* 🚨 정렬: stElementContainer(width:fit-content)를 100%로 강제 */
     div.stElementContainer:has(.stRadio) {
         width: 100% !important;
@@ -553,7 +564,7 @@ elif step == 3:
     if 'show_score_warning' not in st.session_state:
         st.session_state.show_score_warning = False
 
-    # 🌟 신규: 합격탐색 잔상 방지를 위한 st.empty() 플레이스홀더 적용
+    # 🌟 합격탐색 잔상 방지를 위한 st.empty() 플레이스홀더 적용
     btn_container = st.empty()
     with btn_container.container():
         col_l, col_empty, col_r = st.columns([1, 1, 1])
