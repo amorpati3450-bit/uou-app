@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 from datetime import datetime
+import time
+import streamlit.components.v1 as components
 from streamlit_gsheets import GSheetsConnection
 
 # 1. 페이지 기본 설정
@@ -39,6 +41,13 @@ st.markdown("""
     div[data-baseweb="input"] > div:focus-within {
         border-color: #3AB54A !important;
         box-shadow: 0 0 0 3px rgba(58,181,74,0.12) !important;
+    }
+
+    /* 🌟 모바일 2페이지 드롭다운 터치 시 키패드(가상키보드) 팝업 방지 */
+    @media (max-width: 768px) {
+        div[data-baseweb="select"] input {
+            pointer-events: none !important;
+        }
     }
 
     /* 🚨 다크모드 대응: 드롭다운(Selectbox) 선택된 글씨 및 리스트 색상 강제 고정 */
@@ -428,20 +437,23 @@ elif step == 3:
             _, btn_col1, _ = st.columns([1, 1.5, 1])
             with btn_col1:
                 if st.button("계산 및 적용", key="btn_apply_10", width="stretch"):
-                    all_vals = []
-                    for ed in [ed_t_kor, ed_t_eng, ed_t_mat, ed_t_ss]:
-                        for v in ed["등급"]:
-                            if v is not None:
-                                try:
-                                    vf = float(v)
-                                    if vf > 0: all_vals.append(vf)
-                                except: pass
-                    all_vals.sort()
-                    top10 = all_vals[:10]
-                    if top10:
-                        calc_val = sum(top10) / len(top10)
-                        st.session_state.s_10 = calc_val
-                        st.session_state.input_10 = calc_val
+                    with st.spinner("평균 등급 계산 중..."):
+                        time.sleep(0.4)
+                        all_vals = []
+                        for ed in [ed_t_kor, ed_t_eng, ed_t_mat, ed_t_ss]:
+                            for v in ed["등급"]:
+                                if v is not None:
+                                    try:
+                                        vf = float(v)
+                                        if vf > 0: all_vals.append(vf)
+                                    except: pass
+                        all_vals.sort()
+                        top10 = all_vals[:10]
+                        if top10:
+                            calc_val = sum(top10) / len(top10)
+                            st.session_state.s_10 = calc_val
+                            st.session_state.input_10 = calc_val
+                        st.session_state.do_scroll = True
                     st.rerun()
 
             st.markdown("<div style='height:16px; border-bottom:1px solid #E0ECE0; margin-bottom:16px'></div>", unsafe_allow_html=True)
@@ -476,24 +488,40 @@ elif step == 3:
         _, btn_col2, _ = st.columns([1, 1.5, 1])
         with btn_col2:
             if st.button("계산 및 적용", key="btn_apply_all", width="stretch"):
-                t_unit = 0.0
-                t_score = 0.0
-                for ed in [ed_a_kor, ed_a_eng, ed_a_mat, ed_a_soc, ed_a_sci]:
-                    for u, g in zip(ed["단위"], ed["등급"]):
-                        if u is not None and g is not None:
-                            try:
-                                uf, gf = float(u), float(g)
-                                if uf > 0 and gf > 0:
-                                    t_unit += uf
-                                    t_score += (uf * gf)
-                            except: pass
-                if t_unit > 0:
-                    calc_val = t_score / t_unit
-                    st.session_state.s_all = calc_val
-                    st.session_state.input_all = calc_val
+                with st.spinner("평균 등급 계산 중..."):
+                    time.sleep(0.4)
+                    t_unit = 0.0
+                    t_score = 0.0
+                    for ed in [ed_a_kor, ed_a_eng, ed_a_mat, ed_a_soc, ed_a_sci]:
+                        for u, g in zip(ed["단위"], ed["등급"]):
+                            if u is not None and g is not None:
+                                try:
+                                    uf, gf = float(u), float(g)
+                                    if uf > 0 and gf > 0:
+                                        t_unit += uf
+                                        t_score += (uf * gf)
+                                except: pass
+                    if t_unit > 0:
+                        calc_val = t_score / t_unit
+                        st.session_state.s_all = calc_val
+                        st.session_state.input_all = calc_val
+                    st.session_state.do_scroll = True
                 st.rerun()
 
     st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
+    
+    # 계산 및 적용 클릭 시 성적 입력란으로 부드럽게 스크롤 이동
+    if st.session_state.get('do_scroll', False):
+        components.html("""
+        <script>
+            const targets = window.parent.document.querySelectorAll('input[type="number"]');
+            if (targets.length > 0) {
+                targets[0].scrollIntoView({behavior: 'smooth', block: 'center'});
+            }
+        </script>
+        """, height=0)
+        st.session_state.do_scroll = False
+
     if only_special:
         st.markdown("<p style='font-weight:600;font-size:0.88rem;color:#2C3E50;margin:0 0 4px 14px'>전 과목 평균 등급</p>", unsafe_allow_html=True)
         score_all = st.number_input("전과목", min_value=0.0, max_value=9.0, step=0.01, format="%.2f", label_visibility="collapsed", key="input_all", value=st.session_state.s_all, on_change=sync_all, help="예: 2.50")
@@ -527,28 +555,30 @@ elif step == 3:
                 st.session_state.user_data['score_all'] = score_all
                 st.session_state.user_data['score_10'] = score_10
 
-                try:
-                    conn = st.connection("gsheets", type=GSheetsConnection)
-                    sheet_url = "https://docs.google.com/spreadsheets/d/1XMrUsijgyAeAubwA-NCEw4Z8zqcVS8b_TXipWL-0d2w/edit?usp=sharing" 
-                    existing_data = conn.read(spreadsheet=sheet_url, usecols=list(range(8)), ttl=0).dropna(how="all")
+                with st.spinner("합격 가능성을 분석하고 있습니다..."):
+                    time.sleep(0.7) # 부드러운 화면 전환을 위한 의도적 지연
+                    try:
+                        conn = st.connection("gsheets", type=GSheetsConnection)
+                        sheet_url = "https://docs.google.com/spreadsheets/d/1XMrUsijgyAeAubwA-NCEw4Z8zqcVS8b_TXipWL-0d2w/edit?usp=sharing" 
+                        existing_data = conn.read(spreadsheet=sheet_url, usecols=list(range(8)), ttl=0).dropna(how="all")
+                        
+                        new_entry = pd.DataFrame([{
+                            "입력시간": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                            "시도": st.session_state.user_data['region_main'],
+                            "시군구": st.session_state.user_data['region_sub'],
+                            "상담자": st.session_state.user_data['type'],
+                            "관심학부": ", ".join(st.session_state.user_data['deps']),
+                            "전과목성적": score_all,
+                            "10과목성적": score_10,
+                            "유입경로": st.session_state.ad_source
+                        }])
+                        
+                        updated_df = pd.concat([existing_data, new_entry], ignore_index=True)
+                        conn.update(spreadsheet=sheet_url, data=updated_df)
                     
-                    new_entry = pd.DataFrame([{
-                        "입력시간": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                        "시도": st.session_state.user_data['region_main'],
-                        "시군구": st.session_state.user_data['region_sub'],
-                        "상담자": st.session_state.user_data['type'],
-                        "관심학부": ", ".join(st.session_state.user_data['deps']),
-                        "전과목성적": score_all,
-                        "10과목성적": score_10,
-                        "유입경로": st.session_state.ad_source
-                    }])
-                    
-                    updated_df = pd.concat([existing_data, new_entry], ignore_index=True)
-                    conn.update(spreadsheet=sheet_url, data=updated_df)
-                
-                except Exception as e:
-                    st.error(f"🚨 저장 실패: {e}")
-                    st.stop() 
+                    except Exception as e:
+                        st.error(f"🚨 저장 실패: {e}")
+                        st.stop() 
 
                 st.session_state.step = 4
                 st.rerun()
