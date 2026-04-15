@@ -43,7 +43,7 @@ st.markdown("""
         box-shadow: 0 0 0 3px rgba(58,181,74,0.12) !important;
     }
 
-    /* 🌟 모바일 2페이지 드롭다운 터치 시 1차 키패드 팝업 방어 */
+    /* 🌟 모바일 2페이지 드롭다운 터치 시 키패드(가상키보드) 팝업 방지 */
     @media (max-width: 768px) {
         div[data-baseweb="select"] input {
             pointer-events: none !important;
@@ -64,7 +64,7 @@ st.markdown("""
         font-weight: 600 !important;
     }
 
-    /* 🌟 신규: 로딩 스피너(Spinner) 텍스트 가독성 강제 고정 (계산기용) */
+    /* 🌟 신규: 로딩 스피너(Spinner) 텍스트 가독성 강제 고정 */
     [data-testid="stSpinner"] * {
         color: #1E7E34 !important;
         font-weight: 700 !important;
@@ -199,7 +199,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 🌟 신규: 모바일 드롭다운 터치 시 키패드(가상키보드) 팝업 원천 차단 (JS 주입)
+# 🌟 모바일 드롭다운 터치 시 키패드(가상키보드) 팝업 원천 차단 (JS 주입)
 components.html("""
 <script>
     const observer = new MutationObserver(() => {
@@ -462,24 +462,44 @@ elif step == 3:
             st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
             _, btn_col1, _ = st.columns([1, 1.5, 1])
             with btn_col1:
-                if st.button("계산 및 적용", key="btn_apply_10", width="stretch"):
-                    with st.spinner("평균 등급 계산 중..."):
-                        time.sleep(0.4)
-                        all_vals = []
-                        for ed in [ed_t_kor, ed_t_eng, ed_t_mat, ed_t_ss]:
-                            for v in ed["등급"]:
-                                if v is not None:
-                                    try:
-                                        vf = float(v)
-                                        if vf > 0: all_vals.append(vf)
-                                    except: pass
-                        all_vals.sort()
-                        top10 = all_vals[:10]
-                        if top10:
-                            calc_val = sum(top10) / len(top10)
-                            st.session_state.s_10 = calc_val
-                            st.session_state.input_10 = calc_val
-                        st.session_state.do_scroll = True
+                # 🌟 신규: 계산기 꽉 찬 로딩 버튼 적용
+                btn_calc1_container = st.empty()
+                if btn_calc1_container.button("계산 및 적용", key="btn_apply_10", width="stretch"):
+                    btn_calc1_container.markdown('''
+                    <button disabled style="
+                        width: 100%;
+                        background-color: #1E7E34;
+                        color: #FFFFFF;
+                        border: 2px solid #1E7E34;
+                        border-radius: 28px;
+                        padding: 0.65rem 1.5rem;
+                        font-weight: 700;
+                        font-size: 0.95rem;
+                        box-shadow: 0 4px 14px rgba(30,126,52,0.4);
+                        cursor: not-allowed;
+                        opacity: 0.9;
+                        text-align: center;
+                        display: block;
+                    ">⏳ 평균 등급을 계산하고 있습니다...</button>
+                    ''', unsafe_allow_html=True)
+                    
+                    all_vals = []
+                    for ed in [ed_t_kor, ed_t_eng, ed_t_mat, ed_t_ss]:
+                        for v in ed["등급"]:
+                            if v is not None:
+                                try:
+                                    vf = float(v)
+                                    if vf > 0: all_vals.append(vf)
+                                except: pass
+                    all_vals.sort()
+                    top10 = all_vals[:10]
+                    if top10:
+                        calc_val = sum(top10) / len(top10)
+                        st.session_state.s_10 = calc_val
+                        st.session_state.input_10 = calc_val
+                    
+                    time.sleep(0.6) # 시각적 피드백
+                    st.session_state.do_scroll = True
                     st.rerun()
 
             st.markdown("<div style='height:16px; border-bottom:1px solid #E0ECE0; margin-bottom:16px'></div>", unsafe_allow_html=True)
@@ -513,25 +533,45 @@ elif step == 3:
         st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
         _, btn_col2, _ = st.columns([1, 1.5, 1])
         with btn_col2:
-            if st.button("계산 및 적용", key="btn_apply_all", width="stretch"):
-                with st.spinner("평균 등급 계산 중..."):
-                    time.sleep(0.4)
-                    t_unit = 0.0
-                    t_score = 0.0
-                    for ed in [ed_a_kor, ed_a_eng, ed_a_mat, ed_a_soc, ed_a_sci]:
-                        for u, g in zip(ed["단위"], ed["등급"]):
-                            if u is not None and g is not None:
-                                try:
-                                    uf, gf = float(u), float(g)
-                                    if uf > 0 and gf > 0:
-                                        t_unit += uf
-                                        t_score += (uf * gf)
-                                except: pass
-                    if t_unit > 0:
-                        calc_val = t_score / t_unit
-                        st.session_state.s_all = calc_val
-                        st.session_state.input_all = calc_val
-                    st.session_state.do_scroll = True
+            # 🌟 신규: 계산기 꽉 찬 로딩 버튼 적용
+            btn_calc2_container = st.empty()
+            if btn_calc2_container.button("계산 및 적용", key="btn_apply_all", width="stretch"):
+                btn_calc2_container.markdown('''
+                <button disabled style="
+                    width: 100%;
+                    background-color: #1E7E34;
+                    color: #FFFFFF;
+                    border: 2px solid #1E7E34;
+                    border-radius: 28px;
+                    padding: 0.65rem 1.5rem;
+                    font-weight: 700;
+                    font-size: 0.95rem;
+                    box-shadow: 0 4px 14px rgba(30,126,52,0.4);
+                    cursor: not-allowed;
+                    opacity: 0.9;
+                    text-align: center;
+                    display: block;
+                ">⏳ 평균 등급을 계산하고 있습니다...</button>
+                ''', unsafe_allow_html=True)
+                
+                t_unit = 0.0
+                t_score = 0.0
+                for ed in [ed_a_kor, ed_a_eng, ed_a_mat, ed_a_soc, ed_a_sci]:
+                    for u, g in zip(ed["단위"], ed["등급"]):
+                        if u is not None and g is not None:
+                            try:
+                                uf, gf = float(u), float(g)
+                                if uf > 0 and gf > 0:
+                                    t_unit += uf
+                                    t_score += (uf * gf)
+                            except: pass
+                if t_unit > 0:
+                    calc_val = t_score / t_unit
+                    st.session_state.s_all = calc_val
+                    st.session_state.input_all = calc_val
+                
+                time.sleep(0.6) # 시각적 피드백
+                st.session_state.do_scroll = True
                 st.rerun()
 
     st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
@@ -564,7 +604,7 @@ elif step == 3:
     if 'show_score_warning' not in st.session_state:
         st.session_state.show_score_warning = False
 
-    # 🌟 신규: 합격탐색 잔상 방지 및 꽉 찬 로딩 버튼(Dummy) 적용을 위한 st.empty()
+    # 🌟 합격탐색 잔상 방지 및 꽉 찬 로딩 버튼(Dummy) 적용을 위한 st.empty()
     btn_container = st.empty()
     with btn_container.container():
         col_l, col_empty, col_r = st.columns([1, 1, 1])
