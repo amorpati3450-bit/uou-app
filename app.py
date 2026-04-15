@@ -43,7 +43,7 @@ st.markdown("""
         box-shadow: 0 0 0 3px rgba(58,181,74,0.12) !important;
     }
 
-    /* 🌟 모바일 2페이지 드롭다운 터치 시 키패드(가상키보드) 팝업 방지 */
+    /* 🌟 모바일 2페이지 드롭다운 터치 시 1차 키패드 팝업 방어 */
     @media (max-width: 768px) {
         div[data-baseweb="select"] input {
             pointer-events: none !important;
@@ -64,7 +64,7 @@ st.markdown("""
         font-weight: 600 !important;
     }
 
-    /* 🌟 신규: 로딩 스피너(Spinner) 텍스트 가독성 강제 고정 */
+    /* 🌟 신규: 로딩 스피너(Spinner) 텍스트 가독성 강제 고정 (계산기용) */
     [data-testid="stSpinner"] * {
         color: #1E7E34 !important;
         font-weight: 700 !important;
@@ -199,7 +199,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 🌟 모바일 드롭다운 터치 시 키패드(가상키보드) 팝업 원천 차단 (JS 주입)
+# 🌟 신규: 모바일 드롭다운 터치 시 키패드(가상키보드) 팝업 원천 차단 (JS 주입)
 components.html("""
 <script>
     const observer = new MutationObserver(() => {
@@ -564,7 +564,7 @@ elif step == 3:
     if 'show_score_warning' not in st.session_state:
         st.session_state.show_score_warning = False
 
-    # 🌟 합격탐색 잔상 방지를 위한 st.empty() 플레이스홀더 적용
+    # 🌟 신규: 합격탐색 잔상 방지 및 꽉 찬 로딩 버튼(Dummy) 적용을 위한 st.empty()
     btn_container = st.empty()
     with btn_container.container():
         col_l, col_empty, col_r = st.columns([1, 1, 1])
@@ -583,35 +583,52 @@ elif step == 3:
             st.session_state.show_score_warning = True
             st.rerun()
         else:
-            btn_container.empty() # 🚨 기존 버튼 영역 즉시 파괴 (잔상 오류 원천 차단)
+            # 🚨 기존 버튼 영역 파괴 후, 꽉 찬 디자인의 '가짜 로딩 버튼' 생성
+            btn_container.markdown('''
+            <button disabled style="
+                width: 100%;
+                background-color: #1E7E34;
+                color: #FFFFFF;
+                border: 2px solid #1E7E34;
+                border-radius: 28px;
+                padding: 0.65rem 1.5rem;
+                font-weight: 700;
+                font-size: 0.95rem;
+                box-shadow: 0 4px 14px rgba(30,126,52,0.4);
+                cursor: not-allowed;
+                opacity: 0.9;
+                text-align: center;
+                display: block;
+            ">⏳ 합격 가능성을 분석하고 있습니다...</button>
+            ''', unsafe_allow_html=True)
+            
             st.session_state.show_score_warning = False
             st.session_state.user_data['score_all'] = score_all
             st.session_state.user_data['score_10'] = score_10
 
-            with st.spinner("합격 가능성을 분석하고 있습니다..."):
-                time.sleep(0.7) # 부드러운 화면 전환을 위한 의도적 지연
-                try:
-                    conn = st.connection("gsheets", type=GSheetsConnection)
-                    sheet_url = "https://docs.google.com/spreadsheets/d/1XMrUsijgyAeAubwA-NCEw4Z8zqcVS8b_TXipWL-0d2w/edit?usp=sharing" 
-                    existing_data = conn.read(spreadsheet=sheet_url, usecols=list(range(8)), ttl=0).dropna(how="all")
-                    
-                    new_entry = pd.DataFrame([{
-                        "입력시간": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                        "시도": st.session_state.user_data['region_main'],
-                        "시군구": st.session_state.user_data['region_sub'],
-                        "상담자": st.session_state.user_data['type'],
-                        "관심학부": ", ".join(st.session_state.user_data['deps']),
-                        "전과목성적": score_all,
-                        "10과목성적": score_10,
-                        "유입경로": st.session_state.ad_source
-                    }])
-                    
-                    updated_df = pd.concat([existing_data, new_entry], ignore_index=True)
-                    conn.update(spreadsheet=sheet_url, data=updated_df)
+            time.sleep(0.7) # 부드러운 화면 전환을 위한 의도적 지연
+            try:
+                conn = st.connection("gsheets", type=GSheetsConnection)
+                sheet_url = "https://docs.google.com/spreadsheets/d/1XMrUsijgyAeAubwA-NCEw4Z8zqcVS8b_TXipWL-0d2w/edit?usp=sharing" 
+                existing_data = conn.read(spreadsheet=sheet_url, usecols=list(range(8)), ttl=0).dropna(how="all")
                 
-                except Exception as e:
-                    st.error(f"🚨 저장 실패: {e}")
-                    st.stop() 
+                new_entry = pd.DataFrame([{
+                    "입력시간": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    "시도": st.session_state.user_data['region_main'],
+                    "시군구": st.session_state.user_data['region_sub'],
+                    "상담자": st.session_state.user_data['type'],
+                    "관심학부": ", ".join(st.session_state.user_data['deps']),
+                    "전과목성적": score_all,
+                    "10과목성적": score_10,
+                    "유입경로": st.session_state.ad_source
+                }])
+                
+                updated_df = pd.concat([existing_data, new_entry], ignore_index=True)
+                conn.update(spreadsheet=sheet_url, data=updated_df)
+            
+            except Exception as e:
+                st.error(f"🚨 저장 실패: {e}")
+                st.stop() 
 
             st.session_state.step = 4
             st.rerun()
