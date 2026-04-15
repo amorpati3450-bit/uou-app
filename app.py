@@ -188,6 +188,21 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# 🌟 모바일 드롭다운 터치 시 키패드(가상키보드) 팝업 원천 차단 (JS 주입)
+components.html("""
+<script>
+    const observer = new MutationObserver(() => {
+        const inputs = window.parent.document.querySelectorAll('div[data-baseweb="select"] input');
+        inputs.forEach(input => {
+            if (input.getAttribute('readonly') !== 'readonly') {
+                input.setAttribute('readonly', 'readonly');
+            }
+        });
+    });
+    observer.observe(window.parent.document.body, { childList: true, subtree: true });
+</script>
+""", height=0)
+
 # 3. 상태 관리 및 백엔드 파라미터 수집
 if 'step' not in st.session_state:
     st.session_state.step = 1
@@ -538,50 +553,57 @@ elif step == 3:
     if 'show_score_warning' not in st.session_state:
         st.session_state.show_score_warning = False
 
-    col_l, col_empty, col_r = st.columns([1, 1, 1])
-    with col_l:
-        if st.button("이전 단계", type="secondary", key="btn3_prev", width="stretch"):
-            st.session_state.show_score_warning = False
-            st.session_state.step = 2
+    # 🌟 신규: 합격탐색 잔상 방지를 위한 st.empty() 플레이스홀더 적용
+    btn_container = st.empty()
+    with btn_container.container():
+        col_l, col_empty, col_r = st.columns([1, 1, 1])
+        with col_l:
+            btn_prev_clicked = st.button("이전 단계", type="secondary", key="btn3_prev", width="stretch")
+        with col_r:
+            btn_next_clicked = st.button("합격 탐색", type="primary", key="btn3_next", width="stretch")
+
+    if btn_prev_clicked:
+        st.session_state.show_score_warning = False
+        st.session_state.step = 2
+        st.rerun()
+
+    if btn_next_clicked:
+        if score_all == 0.0 and score_10 == 0.0:
+            st.session_state.show_score_warning = True
             st.rerun()
-            
-    with col_r:
-        if st.button("합격 탐색", type="primary", key="btn3_next", width="stretch"):
-            if score_all == 0.0 and score_10 == 0.0:
-                st.session_state.show_score_warning = True
-                st.rerun()
-            else:
-                st.session_state.show_score_warning = False
-                st.session_state.user_data['score_all'] = score_all
-                st.session_state.user_data['score_10'] = score_10
+        else:
+            btn_container.empty() # 🚨 기존 버튼 영역 즉시 파괴 (잔상 오류 원천 차단)
+            st.session_state.show_score_warning = False
+            st.session_state.user_data['score_all'] = score_all
+            st.session_state.user_data['score_10'] = score_10
 
-                with st.spinner("합격 가능성을 분석하고 있습니다..."):
-                    time.sleep(0.7) # 부드러운 화면 전환을 위한 의도적 지연
-                    try:
-                        conn = st.connection("gsheets", type=GSheetsConnection)
-                        sheet_url = "https://docs.google.com/spreadsheets/d/1XMrUsijgyAeAubwA-NCEw4Z8zqcVS8b_TXipWL-0d2w/edit?usp=sharing" 
-                        existing_data = conn.read(spreadsheet=sheet_url, usecols=list(range(8)), ttl=0).dropna(how="all")
-                        
-                        new_entry = pd.DataFrame([{
-                            "입력시간": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                            "시도": st.session_state.user_data['region_main'],
-                            "시군구": st.session_state.user_data['region_sub'],
-                            "상담자": st.session_state.user_data['type'],
-                            "관심학부": ", ".join(st.session_state.user_data['deps']),
-                            "전과목성적": score_all,
-                            "10과목성적": score_10,
-                            "유입경로": st.session_state.ad_source
-                        }])
-                        
-                        updated_df = pd.concat([existing_data, new_entry], ignore_index=True)
-                        conn.update(spreadsheet=sheet_url, data=updated_df)
+            with st.spinner("합격 가능성을 분석하고 있습니다..."):
+                time.sleep(0.7) # 부드러운 화면 전환을 위한 의도적 지연
+                try:
+                    conn = st.connection("gsheets", type=GSheetsConnection)
+                    sheet_url = "https://docs.google.com/spreadsheets/d/1XMrUsijgyAeAubwA-NCEw4Z8zqcVS8b_TXipWL-0d2w/edit?usp=sharing" 
+                    existing_data = conn.read(spreadsheet=sheet_url, usecols=list(range(8)), ttl=0).dropna(how="all")
                     
-                    except Exception as e:
-                        st.error(f"🚨 저장 실패: {e}")
-                        st.stop() 
+                    new_entry = pd.DataFrame([{
+                        "입력시간": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        "시도": st.session_state.user_data['region_main'],
+                        "시군구": st.session_state.user_data['region_sub'],
+                        "상담자": st.session_state.user_data['type'],
+                        "관심학부": ", ".join(st.session_state.user_data['deps']),
+                        "전과목성적": score_all,
+                        "10과목성적": score_10,
+                        "유입경로": st.session_state.ad_source
+                    }])
+                    
+                    updated_df = pd.concat([existing_data, new_entry], ignore_index=True)
+                    conn.update(spreadsheet=sheet_url, data=updated_df)
+                
+                except Exception as e:
+                    st.error(f"🚨 저장 실패: {e}")
+                    st.stop() 
 
-                st.session_state.step = 4
-                st.rerun()
+            st.session_state.step = 4
+            st.rerun()
 
     if st.session_state.show_score_warning:
         st.markdown("""<div style="background:#FFF3CD;border:1px solid #FFEEBA;border-radius:12px;padding:12px;color:#856404;text-align:center;font-weight:700;font-size:0.9rem;margin-top:10px;">성적을 입력해 주세요.</div>""", unsafe_allow_html=True)
