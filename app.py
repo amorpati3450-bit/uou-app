@@ -11,9 +11,6 @@ st.set_page_config(page_title="2027학년도 UOU 입시나침반", layout="cente
 # 2. CSS (모바일 반응형, 다크모드 방어, 버튼 차별화, 단어 단위 줄바꿈 완벽 적용)
 st.markdown("""
 <style>
-    :root {
-        color-scheme: light !important;
-    }
     header[data-testid="stHeader"] { display: none !important; }
     .stMainBlockContainer, .block-container {
         padding-top: 0 !important;
@@ -26,8 +23,7 @@ st.markdown("""
 
     /* 🌟 한국어 단어 단위 줄바꿈(keep-all) 적용으로 모바일 텍스트 깨짐 방지 */
     .stApp {
-        background-color: #F0F4F0 !important;
-        background-image: linear-gradient(#F0F4F0, #F0F4F0) !important;
+        background-color: #F0F4F0;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         word-break: keep-all !important;
     }
@@ -36,7 +32,6 @@ st.markdown("""
     div[data-baseweb="select"] > div,
     div[data-baseweb="input"] > div {
         background-color: #FFFFFF !important;
-        background-image: linear-gradient(#FFFFFF, #FFFFFF) !important;
         border: 1.5px solid #D4E8D4 !important;
         border-radius: 28px !important;
         padding: 2px 14px !important;
@@ -55,31 +50,23 @@ st.markdown("""
         }
     }
 
-    /* 🚨 다크모드 대응: 드롭다운(Selectbox) 글씨 방어 (Text-shadow 트릭) */
+    /* 🚨 다크모드 대응: 드롭다운(Selectbox) 선택된 글씨 및 리스트 색상 강제 고정 */
     div[data-baseweb="select"] * {
-        color: transparent !important;
-        -webkit-text-fill-color: transparent !important;
-        text-shadow: 0 0 0 #2C3E50 !important;
+        color: #2C3E50 !important;
+        -webkit-text-fill-color: #2C3E50 !important;
     }
-    ul[data-baseweb="menu"] li { 
-        color: transparent !important;
-        -webkit-text-fill-color: transparent !important;
-        text-shadow: 0 0 0 #2C3E50 !important; 
-    }
+    ul[data-baseweb="menu"] li { color: #2C3E50 !important; }
     
-    /* 🚨 다크모드 대응: 숫자 입력칸 방어 (Text-shadow 트릭) */
+    /* 🚨 다크모드 대응: 숫자 입력칸(Number Input) 글자색 강제 고정 */
     div[data-baseweb="input"] input {
-        color: transparent !important;
-        -webkit-text-fill-color: transparent !important;
-        text-shadow: 0 0 0 #2C3E50 !important;
+        color: #2C3E50 !important;
+        -webkit-text-fill-color: #2C3E50 !important;
         font-weight: 600 !important;
     }
 
     /* 🌟 신규: 로딩 스피너(Spinner) 텍스트 가독성 강제 고정 */
     [data-testid="stSpinner"] * {
-        color: transparent !important;
-        -webkit-text-fill-color: transparent !important;
-        text-shadow: 0 0 0 #1E7E34 !important;
+        color: #1E7E34 !important;
         font-weight: 700 !important;
     }
     
@@ -100,8 +87,6 @@ st.markdown("""
         justify-content: center !important;
         width: 100% !important;
     }
-    
-    /* 배경의 흰색 박스 제거 및 기본 정렬 유지 */
     div[role="radiogroup"] {
         display: flex !important;
         flex-direction: row !important;
@@ -109,33 +94,28 @@ st.markdown("""
         gap: 40px !important;
         width: auto !important;
     }
-
-    /* 🚨 다크모드 궁극 방어: 태그(p, div, span 등)를 불문하고 텍스트를 강제로 포착하여 그림자 칠하기 */
-    div[role="radiogroup"] label[data-baseweb="radio"] > div:last-child,
-    div[role="radiogroup"] label[data-baseweb="radio"] > div:last-child * {
-        color: transparent !important;
-        -webkit-text-fill-color: transparent !important;
-        text-shadow: 0 0 0 #2C3E50 !important;
-        font-weight: 700 !important;
-    }
-
-    /* 🚨 다크모드 대응: 라디오 버튼(원) 색상을 그림자로 강제 칠하기 */
-    div[role="radiogroup"] label[data-baseweb="radio"] > div:first-child {
-        background-color: transparent !important;
-        box-shadow: inset 0 0 0 20px #FFFFFF, 0 0 0 2px #3AB54A !important; 
-        border: none !important;
-    }
     
+    /* 🚨 1페이지 예/아니오 안 보임 현상 최종 해결 */
+    /* Streamlit이 다크모드일 때 사용하는 -webkit-text-fill-color를 덮어씌워 하얀 배경 위에서 무조건 남색으로 고정되게 함 */
+    div[role="radiogroup"] label[data-baseweb="radio"] p,
+    div[role="radiogroup"] label[data-baseweb="radio"] > div:last-child {
+        color: #2C3E50 !important;
+        -webkit-text-fill-color: #2C3E50 !important;
+        font-weight: 600 !important;
+    }
+
+    /* 🚨 다크모드 대응: 외부 원 흰색 배경 (specificity 최대화) */
+    div[role="radiogroup"] label[data-baseweb="radio"] > div:first-child {
+        background-color: #FFFFFF !important;
+        border-color: #3AB54A !important;
+    }
     /* 미선택: 내부 점 투명 */
     div[role="radiogroup"] label[data-baseweb="radio"]:not(:has(input:checked)) > div:first-child > div {
         background-color: transparent !important;
-        box-shadow: none !important;
     }
-    
-    /* 선택: 내부 점 진한 녹색으로 강제 칠하기 */
+    /* 선택: 내부 점 진한 녹색 */
     div[role="radiogroup"] label[data-baseweb="radio"]:has(input:checked) > div:first-child > div {
-        background-color: transparent !important;
-        box-shadow: inset 0 0 0 20px #1E7E34 !important;
+        background-color: #1E7E34 !important;
     }
 
     /* 기본(Default) 버튼 - 연두색 */
@@ -203,9 +183,7 @@ st.markdown("""
         line-height: 1.4 !important;
     }
     details summary span {
-        color: transparent !important;
-        -webkit-text-fill-color: transparent !important;
-        text-shadow: 0 0 0 #2C3E50 !important;
+        color: #2C3E50 !important;
         font-weight: 700 !important;
         font-size: 1rem !important;
     }
@@ -464,7 +442,7 @@ elif step == 3:
         
         if not only_special:
             st.markdown("<div style='font-weight:800;color:#2C3E50;margin-bottom:4px;font-size:1rem;text-align:center;'>[ 상위 10개 과목 평균 계산기 ]</div>", unsafe_allow_html=True)
-            st.markdown("<div style='color:#E67E22;font-size:0.8rem;font-weight:700;margin-bottom:12px;text-align:center;'>⚠️ 이수단위 2 이상인 과목의 단위를 고려하지 않고 단순 평균으로 계산합니다.</div>", unsafe_allow_html=True)
+            st.markdown("<div style='color:#E67E22;font-size:0.8rem;font-weight:700;margin-bottom:12px;text-align:center;'>⚠️ 이수단위 2 이상인 과목의 등급만 입력해 주세요.</div>", unsafe_allow_html=True)
 
             def_10 = {"등급":[None]*3}
             
