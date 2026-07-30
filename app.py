@@ -26,7 +26,8 @@ st.markdown("""
 
     /* 🌟 한국어 단어 단위 줄바꿈(keep-all) 적용으로 모바일 텍스트 깨짐 방지 */
     .stApp {
-        background-color: #F0F4F0;
+        background-color: #F0F4F0 !important;
+        background-image: linear-gradient(#F0F4F0, #F0F4F0) !important; /* 🚨 크롬 강제 다크모드 바탕화면 흑백 반전 원천 차단 */
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         word-break: keep-all !important;
     }
@@ -35,6 +36,7 @@ st.markdown("""
     div[data-baseweb="select"] > div,
     div[data-baseweb="input"] > div {
         background-color: #FFFFFF !important;
+        background-image: linear-gradient(#FFFFFF, #FFFFFF) !important; /* 🚨 입력창 흑백 반전 차단 */
         border: 1.5px solid #D4E8D4 !important;
         border-radius: 28px !important;
         padding: 2px 14px !important;
@@ -97,16 +99,17 @@ st.markdown("""
         gap: 40px !important;
         width: auto !important;
     }
-    /* 🚨 다크모드 대응: 라디오 버튼 텍스트 색상 및 채우기 강제 고정 (* 기호로 하위 태그 모두 적용) */
+    /* 🚨 다크모드 대응: 라디오 버튼 텍스트 색상 강제 고정 (배경이 흰색으로 고정되므로 이제 완벽히 보임) */
     div[role="radiogroup"] label[data-baseweb="radio"] * {
         color: #2C3E50 !important;
         -webkit-text-fill-color: #2C3E50 !important;
         font-weight: 600 !important;
     }
 
-    /* 🚨 다크모드 대응: 외부 원 흰색 배경 (specificity 최대화) */
+    /* 🚨 다크모드 대응: 라디오 버튼 외부 원 흰색 배경 고정 */
     div[role="radiogroup"] label[data-baseweb="radio"] > div:first-child {
         background-color: #FFFFFF !important;
+        background-image: linear-gradient(#FFFFFF, #FFFFFF) !important; /* 원 내부 검은색 반전 차단 */
         border-color: #3AB54A !important;
     }
     /* 미선택: 내부 점 투명 */
