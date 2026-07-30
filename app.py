@@ -27,7 +27,7 @@ st.markdown("""
     /* 🌟 한국어 단어 단위 줄바꿈(keep-all) 적용으로 모바일 텍스트 깨짐 방지 */
     .stApp {
         background-color: #F0F4F0 !important;
-        background-image: linear-gradient(#F0F4F0, #F0F4F0) !important; /* 🚨 크롬 강제 다크모드 바탕화면 흑백 반전 원천 차단 */
+        background-image: linear-gradient(#F0F4F0, #F0F4F0) !important;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         word-break: keep-all !important;
     }
@@ -36,7 +36,7 @@ st.markdown("""
     div[data-baseweb="select"] > div,
     div[data-baseweb="input"] > div {
         background-color: #FFFFFF !important;
-        background-image: linear-gradient(#FFFFFF, #FFFFFF) !important; /* 🚨 입력창 흑백 반전 차단 */
+        background-image: linear-gradient(#FFFFFF, #FFFFFF) !important;
         border: 1.5px solid #D4E8D4 !important;
         border-radius: 28px !important;
         padding: 2px 14px !important;
@@ -55,23 +55,31 @@ st.markdown("""
         }
     }
 
-    /* 🚨 다크모드 대응: 드롭다운(Selectbox) 선택된 글씨 및 리스트 색상 강제 고정 */
+    /* 🚨 다크모드 대응: 드롭다운(Selectbox) 글씨 방어 (Text-shadow 트릭) */
     div[data-baseweb="select"] * {
-        color: #2C3E50 !important;
-        -webkit-text-fill-color: #2C3E50 !important;
+        color: transparent !important;
+        -webkit-text-fill-color: transparent !important;
+        text-shadow: 0 0 0 #2C3E50 !important;
     }
-    ul[data-baseweb="menu"] li { color: #2C3E50 !important; }
+    ul[data-baseweb="menu"] li { 
+        color: transparent !important;
+        -webkit-text-fill-color: transparent !important;
+        text-shadow: 0 0 0 #2C3E50 !important; 
+    }
     
-    /* 🚨 다크모드 대응: 숫자 입력칸(Number Input) 글자색 강제 고정 */
+    /* 🚨 다크모드 대응: 숫자 입력칸 방어 (Text-shadow 트릭) */
     div[data-baseweb="input"] input {
-        color: #2C3E50 !important;
-        -webkit-text-fill-color: #2C3E50 !important;
+        color: transparent !important;
+        -webkit-text-fill-color: transparent !important;
+        text-shadow: 0 0 0 #2C3E50 !important;
         font-weight: 600 !important;
     }
 
     /* 🌟 신규: 로딩 스피너(Spinner) 텍스트 가독성 강제 고정 */
     [data-testid="stSpinner"] * {
-        color: #1E7E34 !important;
+        color: transparent !important;
+        -webkit-text-fill-color: transparent !important;
+        text-shadow: 0 0 0 #1E7E34 !important;
         font-weight: 700 !important;
     }
     
@@ -99,26 +107,32 @@ st.markdown("""
         gap: 40px !important;
         width: auto !important;
     }
-    /* 🚨 다크모드 대응: 라디오 버튼 텍스트 색상 강제 고정 (배경이 흰색으로 고정되므로 이제 완벽히 보임) */
-    div[role="radiogroup"] label[data-baseweb="radio"] * {
-        color: #2C3E50 !important;
-        -webkit-text-fill-color: #2C3E50 !important;
+
+    /* 🚨 다크모드 궁극 방어: 1페이지 예/아니오 라디오 버튼 텍스트를 그림자로 칠하기 */
+    div[role="radiogroup"] label[data-baseweb="radio"] p {
+        color: transparent !important;
+        -webkit-text-fill-color: transparent !important;
+        text-shadow: 0 0 0 #2C3E50 !important;
         font-weight: 600 !important;
     }
 
-    /* 🚨 다크모드 대응: 라디오 버튼 외부 원 흰색 배경 고정 */
+    /* 🚨 다크모드 궁극 방어: 라디오 버튼(원) 색상을 그림자로 강제 칠하기 */
     div[role="radiogroup"] label[data-baseweb="radio"] > div:first-child {
-        background-color: #FFFFFF !important;
-        background-image: linear-gradient(#FFFFFF, #FFFFFF) !important; /* 원 내부 검은색 반전 차단 */
-        border-color: #3AB54A !important;
+        background-color: transparent !important;
+        box-shadow: inset 0 0 0 20px #FFFFFF, 0 0 0 2px #3AB54A !important; 
+        border: none !important;
     }
+    
     /* 미선택: 내부 점 투명 */
     div[role="radiogroup"] label[data-baseweb="radio"]:not(:has(input:checked)) > div:first-child > div {
         background-color: transparent !important;
+        box-shadow: none !important;
     }
-    /* 선택: 내부 점 진한 녹색 */
+    
+    /* 선택: 내부 점 진한 녹색으로 강제 칠하기 */
     div[role="radiogroup"] label[data-baseweb="radio"]:has(input:checked) > div:first-child > div {
-        background-color: #1E7E34 !important;
+        background-color: transparent !important;
+        box-shadow: inset 0 0 0 20px #1E7E34 !important;
     }
 
     /* 기본(Default) 버튼 - 연두색 */
@@ -186,7 +200,9 @@ st.markdown("""
         line-height: 1.4 !important;
     }
     details summary span {
-        color: #2C3E50 !important;
+        color: transparent !important;
+        -webkit-text-fill-color: transparent !important;
+        text-shadow: 0 0 0 #2C3E50 !important;
         font-weight: 700 !important;
         font-size: 1rem !important;
     }
