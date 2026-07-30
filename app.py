@@ -95,13 +95,13 @@ st.markdown("""
         width: auto !important;
     }
     
-    /* 🚨 1페이지 예/아니오 안 보임 현상 최종 해결 */
-    /* Streamlit이 다크모드일 때 사용하는 -webkit-text-fill-color를 덮어씌워 하얀 배경 위에서 무조건 남색으로 고정되게 함 */
-    div[role="radiogroup"] label[data-baseweb="radio"] p,
-    div[role="radiogroup"] label[data-baseweb="radio"] > div:last-child {
+    /* 🚨 문제 원인 완벽 해결: Streamlit 자체 다크모드가 텍스트를 '옅은 흰색'으로 만드는 현상 원천 차단 */
+    /* 태그 종류(p, div, span)를 불문하고 라디오 버튼 안의 모든 글씨(*)를 진한 남색으로 강제 고정 */
+    div[data-testid="stRadio"] *,
+    div[role="radiogroup"] label[data-baseweb="radio"] * {
         color: #2C3E50 !important;
         -webkit-text-fill-color: #2C3E50 !important;
-        font-weight: 600 !important;
+        font-weight: 700 !important;
     }
 
     /* 🚨 다크모드 대응: 외부 원 흰색 배경 (specificity 최대화) */
