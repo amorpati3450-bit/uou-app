@@ -11,9 +11,6 @@ st.set_page_config(page_title="2027학년도 UOU 입시나침반", layout="cente
 # 2. CSS (모바일 반응형, 다크모드 방어, 버튼 차별화, 단어 단위 줄바꿈 완벽 적용)
 st.markdown("""
 <style>
-    :root {
-        color-scheme: light !important;
-    }
     header[data-testid="stHeader"] { display: none !important; }
     .stMainBlockContainer, .block-container {
         padding-top: 0 !important;
@@ -26,8 +23,7 @@ st.markdown("""
 
     /* 🌟 한국어 단어 단위 줄바꿈(keep-all) 적용으로 모바일 텍스트 깨짐 방지 */
     .stApp {
-        background-color: #F0F4F0 !important;
-        background-image: linear-gradient(#F0F4F0, #F0F4F0) !important;
+        background-color: #F0F4F0;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         word-break: keep-all !important;
     }
@@ -36,7 +32,6 @@ st.markdown("""
     div[data-baseweb="select"] > div,
     div[data-baseweb="input"] > div {
         background-color: #FFFFFF !important;
-        background-image: linear-gradient(#FFFFFF, #FFFFFF) !important;
         border: 1.5px solid #D4E8D4 !important;
         border-radius: 28px !important;
         padding: 2px 14px !important;
@@ -55,31 +50,22 @@ st.markdown("""
         }
     }
 
-    /* 🚨 다크모드 대응: 드롭다운(Selectbox) 글씨 방어 (Text-shadow 트릭) */
+    /* 🚨 텍스트 색상 강제 고정 제거: 크롬 다크모드가 자연스럽게 글씨를 반전(흰색)시킬 수 있도록 허용 */
     div[data-baseweb="select"] * {
-        color: transparent !important;
-        -webkit-text-fill-color: transparent !important;
-        text-shadow: 0 0 0 #2C3E50 !important;
+        /* color 설정 제거 */
     }
     ul[data-baseweb="menu"] li { 
-        color: transparent !important;
-        -webkit-text-fill-color: transparent !important;
-        text-shadow: 0 0 0 #2C3E50 !important; 
+        /* color 설정 제거 */
     }
     
-    /* 🚨 다크모드 대응: 숫자 입력칸 방어 (Text-shadow 트릭) */
     div[data-baseweb="input"] input {
-        color: transparent !important;
-        -webkit-text-fill-color: transparent !important;
-        text-shadow: 0 0 0 #2C3E50 !important;
         font-weight: 600 !important;
+        /* color 설정 제거 */
     }
 
     /* 🌟 신규: 로딩 스피너(Spinner) 텍스트 가독성 강제 고정 */
     [data-testid="stSpinner"] * {
-        color: transparent !important;
-        -webkit-text-fill-color: transparent !important;
-        text-shadow: 0 0 0 #1E7E34 !important;
+        color: #1E7E34 !important;
         font-weight: 700 !important;
     }
     
@@ -107,32 +93,24 @@ st.markdown("""
         gap: 40px !important;
         width: auto !important;
     }
-
-    /* 🚨 다크모드 궁극 방어: 1페이지 예/아니오 라디오 버튼 텍스트를 그림자로 칠하기 */
+    
+    /* 🚨 문제의 원흉 해결: 라디오 버튼 텍스트의 고정 컬러 제거 (이제 다크모드에서 잘 보입니다) */
     div[role="radiogroup"] label[data-baseweb="radio"] p {
-        color: transparent !important;
-        -webkit-text-fill-color: transparent !important;
-        text-shadow: 0 0 0 #2C3E50 !important;
         font-weight: 600 !important;
     }
 
-    /* 🚨 다크모드 궁극 방어: 라디오 버튼(원) 색상을 그림자로 강제 칠하기 */
+    /* 🚨 다크모드 대응: 외부 원 흰색 배경 (specificity 최대화) */
     div[role="radiogroup"] label[data-baseweb="radio"] > div:first-child {
-        background-color: transparent !important;
-        box-shadow: inset 0 0 0 20px #FFFFFF, 0 0 0 2px #3AB54A !important; 
-        border: none !important;
+        background-color: #FFFFFF !important;
+        border-color: #3AB54A !important;
     }
-    
     /* 미선택: 내부 점 투명 */
     div[role="radiogroup"] label[data-baseweb="radio"]:not(:has(input:checked)) > div:first-child > div {
         background-color: transparent !important;
-        box-shadow: none !important;
     }
-    
-    /* 선택: 내부 점 진한 녹색으로 강제 칠하기 */
+    /* 선택: 내부 점 진한 녹색 */
     div[role="radiogroup"] label[data-baseweb="radio"]:has(input:checked) > div:first-child > div {
-        background-color: transparent !important;
-        box-shadow: inset 0 0 0 20px #1E7E34 !important;
+        background-color: #1E7E34 !important;
     }
 
     /* 기본(Default) 버튼 - 연두색 */
@@ -200,11 +178,9 @@ st.markdown("""
         line-height: 1.4 !important;
     }
     details summary span {
-        color: transparent !important;
-        -webkit-text-fill-color: transparent !important;
-        text-shadow: 0 0 0 #2C3E50 !important;
         font-weight: 700 !important;
         font-size: 1rem !important;
+        /* color 설정 제거 */
     }
     
     /* 표 스타일 최적화 (폭 제한 해제 및 스크롤 완전 숨기기) */
