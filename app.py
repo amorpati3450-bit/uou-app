@@ -1,6 +1,3 @@
-요청하신 대로 이전에 제안했던 다크모드 방어 CSS(루트 테마 고정 및 라디오 버튼 텍스트 속성)만 정확히 반영하고, **나머지 코드는 원본 그대로 100% 유지**한 전체 코드입니다.
-
-```python
 import streamlit as st
 import pandas as pd
 from datetime import datetime
@@ -865,5 +862,3 @@ elif step == 5:
         if st.button("닫기", type="secondary", key="btn_close", width="stretch"):
             st.session_state.closed = True
             st.rerun()
-
-```
