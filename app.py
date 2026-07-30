@@ -1,3 +1,6 @@
+요청하신 대로 이전에 제안했던 다크모드 방어 CSS(루트 테마 고정 및 라디오 버튼 텍스트 속성)만 정확히 반영하고, **나머지 코드는 원본 그대로 100% 유지**한 전체 코드입니다.
+
+```python
 import streamlit as st
 import pandas as pd
 from datetime import datetime
@@ -11,6 +14,9 @@ st.set_page_config(page_title="2027학년도 UOU 입시나침반", layout="cente
 # 2. CSS (모바일 반응형, 다크모드 방어, 버튼 차별화, 단어 단위 줄바꿈 완벽 적용)
 st.markdown("""
 <style>
+    :root {
+        color-scheme: light !important;
+    }
     header[data-testid="stHeader"] { display: none !important; }
     .stMainBlockContainer, .block-container {
         padding-top: 0 !important;
@@ -94,8 +100,10 @@ st.markdown("""
         gap: 40px !important;
         width: auto !important;
     }
-    div[role="radiogroup"] label[data-baseweb="radio"] p {
+    /* 🚨 다크모드 대응: 라디오 버튼 텍스트 색상 및 채우기 강제 고정 (* 기호로 하위 태그 모두 적용) */
+    div[role="radiogroup"] label[data-baseweb="radio"] * {
         color: #2C3E50 !important;
+        -webkit-text-fill-color: #2C3E50 !important;
         font-weight: 600 !important;
     }
 
@@ -857,3 +865,5 @@ elif step == 5:
         if st.button("닫기", type="secondary", key="btn_close", width="stretch"):
             st.session_state.closed = True
             st.rerun()
+
+```
